@@ -151,7 +151,7 @@ export default function Home() {
                         <img
                           src={post.imageUrl}
                           alt={post.title}
-                          className="w-[200px] h-[150px] rounded m-5 sm:w-[250px] sm:h-[150px]"
+                          className="w-[250px] h-[150px] rounded m-5 sm:w-[250px] sm:h-[150px]"
                         />
                       )}
                       <div className="flex flex-col justify-center gap-5  ">
