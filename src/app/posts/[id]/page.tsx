@@ -6,6 +6,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation'; // Importe o hook useParams
 import Link from 'next/link';
 
+import Head from 'next/head';  
+
 interface Post {
   id: string;
   title: string;
@@ -63,6 +65,18 @@ export default function DetailPost() {
 
   return (
     <main className="w-full min-h-screen bg-zinc-900">
+      <title>{post?.title}</title>
+      <Head>
+        <meta name="description" content={`${post?.content}`} />
+        <meta name="keywords" content="loud, loudgg, loudlol, loudvalorant" />
+        <meta property="og:title" content={`${post?.title}`} />
+        <meta property="og:description" content={`${post?.title}`} />
+        <meta property="og:image" content={`${post?.imageUrl}`} />
+        <meta name="twitter:card" content={`${post?.imageUrl}`} />
+        <meta property="og:description" content={`${post?.title}`} />
+        <meta name="description" content={`${post?.content}`} />
+        <meta name="twitter:card" content={`${post?.imageUrl}`} />
+      </Head>
       <header className="flex bg-green-600 justify-center items-center text-center p-5">
         <Link href="/">
           <img className='w-auto h-12'  src='/logo.png' />
@@ -85,7 +99,12 @@ export default function DetailPost() {
               className="w-[700px] h-auto rounded mt-4"
             />
           )}
-          <p className="w-[800px] text-white mb-4">{post.content}</p>
+          <p
+            className="content"
+            dangerouslySetInnerHTML={{
+              __html: post.content.replace(/\n/g, '<br />'), 
+            }}
+          />
         </div>
       ) : (
         <p>Post não encontrado.</p>

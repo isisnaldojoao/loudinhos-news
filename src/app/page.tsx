@@ -5,6 +5,8 @@ import { db } from '../lib/firebaseConfig';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
 
+import Head from 'next/head';  
+
 interface Post {
   id: string;
   title: string;
@@ -70,28 +72,40 @@ export default function Home() {
 
   return (
     <main className="w-full min-h-screen bg-zinc-900">
+      <title>LOUDinhos</title>
+      <Head>
+        <meta name="description" content="Site sobre a LOUD e seus conteúdos" />
+        <meta name="keywords" content="loud, loudgg, loudlol, loudvalorant" />
+        <meta property="og:title" content="LOUDinhos" />
+        <meta property="og:description" content="Site sobre a LOUD e seus conteúdos" />
+        <meta property="og:image" content={`/loudinhos_news.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
+      
       <header className="flex bg-green-600 justify-center items-center text-center p-5">
         <img className='w-auto h-12'  src='/logo.png' />
       </header>
 
       {/* Exibição dos favoritos como slide contínuo */}
       <section className="p-4 flex items-center justify-center">
-      
-        <div className='flex'>
-          <div className="relative w-[800px] h-[533px] m-1">
-            <Link href={favItems.length > 1 ? favItems[0]?.url : '/'}>
-              <img
-                className="w-full h-full object-cover"
-                src={favItems.length > 1 ? favItems[0]?.image : '/default-image.jpg'}
-                alt={favItems.length > 1 ? favItems[0]?.title : 'Imagem padrão'}
-              />
-              <h2 className="absolute bottom-0 left-0 w-full p-2 text-white bg-black bg-opacity-50 text-3xl font-bold" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>
-                {favItems.length > 1 ? favItems[0]?.title : 'Título padrão'}
-              </h2>
-            </Link>
-            </div>
-            <div className='flex flex-col'>
-            <div className="relative w-[400px] h-[260px] m-1">
+      <div className="flex flex-col md:flex-row">
+        <div className="relative w-full md:w-[800px] h-[533px] m-1">
+          <Link href={favItems.length > 1 ? favItems[0]?.url : '/'}>
+            <img
+              className="w-full h-full object-cover"
+              src={favItems.length > 1 ? favItems[0]?.image : '/default-image.jpg'}
+              alt={favItems.length > 1 ? favItems[0]?.title : 'Imagem padrão'}
+            />
+            <h2
+              className="absolute bottom-0 left-0 w-full p-2 text-white bg-black bg-opacity-50 text-3xl font-bold"
+              style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}
+            >
+              {favItems.length > 1 ? favItems[0]?.title : 'Título padrão'}
+            </h2>
+          </Link>
+        </div>
+        <div className="flex flex-col w-full md:w-[400px]">
+          <div className="relative w-full h-[260px] m-1">
             <Link href={favItems.length > 1 ? favItems[1]?.url : '/'}>
               <img
                 className="w-full h-full object-cover"
@@ -102,9 +116,9 @@ export default function Home() {
                 {favItems.length > 1 ? favItems[1]?.title : 'Título padrão'}
               </h2>
             </Link>
-            </div>
-            <Link href={favItems.length > 1 ? favItems[2]?.url : '/'}>
-              <div className="relative w-[400px] h-[265px] m-1">
+          </div>
+          <Link href={favItems.length > 1 ? favItems[2]?.url : '/'}>
+            <div className="relative w-full h-[265px] m-1">
               <img
                 className="w-full h-full object-cover"
                 src={favItems.length > 1 ? favItems[2]?.image : '/default-image.jpg'}
@@ -113,15 +127,15 @@ export default function Home() {
               <h2 className="absolute bottom-0 left-0 w-full p-2 text-white bg-black bg-opacity-50 font-bold">
                 {favItems.length > 1 ? favItems[2]?.title : 'Título padrão'}
               </h2>
-              
             </div>
-            </Link>
-            </div>
+          </Link>
         </div>
+      </div>
+
       </section>
 
-      <section className="p-4">
-        <h1 className="text-3xl font-bold text-center text-white mb-4">Últimas postagens</h1>
+      <section className="p-4 flex flex-col items-center justify-center">
+
         {loading ? (
           <p className="text-center text-white">Carregando...</p>
         ) : (
@@ -129,16 +143,16 @@ export default function Home() {
             {posts.length > 0 ? (
               <>
                 {posts.slice(0, visiblePosts).map((post) => (
-                  <div key={post.id} className="post mb-4 p-4 text-white rounded bg-zinc-800">
+                  <div key={post.id} className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-zinc-800">
                     <Link className="flex" href={`/posts/${post.id}`}>
                       {post.imageUrl && (
                         <img
                           src={post.imageUrl}
                           alt={post.title}
-                          className="w-[300px] h-[200px] rounded m-5"
+                          className="w-[200px] h-[150px] rounded m-5 sm:w-[250px] sm:h-[150px]"
                         />
                       )}
-                      <div className="flex flex-col justify-between mt-4">
+                      <div className="flex flex-col justify-center gap-5  ">
                         <h2 className="text-2xl font-semibold hover:text-green-600">
                           {post.title}
                         </h2>

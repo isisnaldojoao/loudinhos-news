@@ -3,13 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { auth } from '../../lib/firebaseConfig'; 
-import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc } from 'firebase/firestore';
+import { auth } from '../../lib/firebaseConfig';
+import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc, limit, startAfter } from 'firebase/firestore';
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/ui/app-sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
 
-const db = getFirestore(); 
+import { Trash,Pencil } from "lucide-react";
+
+const db = getFirestore();
 
 interface Post {
   id: string;
@@ -23,20 +25,21 @@ interface FavItem {
   image: string;
   title: string;
   url: string;
-  collection: 'fav1' | 'fav2' | 'fav3'; // Adicionando uma propriedade para a coleção
+  collection: 'fav1' | 'fav2' | 'fav3';
 }
 
 export default function Painel() {
   const [user, setUser] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]); 
-  const [favItems, setFavItems] = useState<FavItem[]>([]); // Para armazenar os favoritos
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [lastDoc, setLastDoc] = useState<any>(null); // Para armazenar o último documento carregado
+  const [hasMore, setHasMore] = useState(true); // Indica se há mais posts para carregar
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
-        router.push('/login'); // Redireciona para login se não autenticado
+        router.push('/login');
       } else {
         setUser(currentUser);
       }
@@ -46,41 +49,54 @@ export default function Painel() {
   }, [router]);
 
   useEffect(() => {
-    const fetchPostsAndFavs = async () => {
-      try {
-        // Fetch posts
-        const postQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-        const postSnapshot = await getDocs(postQuery);
-        const postsList: Post[] = [];
-        postSnapshot.forEach((doc) => {
-          postsList.push({ id: doc.id, ...doc.data() } as Post);
-        });
+    fetchPosts();
+  }, []);
 
-        setPosts(postsList);
+  const fetchPosts = async (isLoadMore = false) => {
+    try {
+      setLoading(true);
 
-        // Fetch favoritos
-        const favCollections: ('fav1' | 'fav2' | 'fav3')[] = ['fav1', 'fav2', 'fav3'];
-        const favItemsList: FavItem[] = [];
-
-        for (const favCollection of favCollections) {
-          const favSnapshot = await getDocs(collection(db, favCollection));
-          if (!favSnapshot.empty) {
-            favSnapshot.forEach((doc) => {
-              favItemsList.push({ id: doc.id, ...doc.data(), collection: favCollection } as FavItem);
-            });
-          }
-        }
-
-        setFavItems(favItemsList);
-      } catch (error) {
-        console.error('Erro ao buscar dados: ', error);
-      } finally {
-        setLoading(false);
+      let postQuery;
+      if (isLoadMore && lastDoc) {
+        postQuery = query(
+          collection(db, 'posts'),
+          orderBy('createdAt', 'desc'),
+          startAfter(lastDoc), // Começa após o último documento
+          limit(10)
+        );
+      } else {
+        postQuery = query(
+          collection(db, 'posts'),
+          orderBy('createdAt', 'desc'),
+          limit(10)
+        );
       }
-    };
 
-    fetchPostsAndFavs();
-  }, []); 
+      const postSnapshot = await getDocs(postQuery);
+      const postsList: Post[] = [];
+      postSnapshot.forEach((doc) => {
+        postsList.push({ id: doc.id, ...doc.data() } as Post);
+      });
+
+      if (isLoadMore) {
+        setPosts((prevPosts) => [...prevPosts, ...postsList]); // Adiciona aos posts existentes
+      } else {
+        setPosts(postsList); // Define os posts iniciais
+      }
+
+      // Atualiza o último documento carregado
+      if (!postSnapshot.empty) {
+        setLastDoc(postSnapshot.docs[postSnapshot.docs.length - 1]);
+      }
+
+      // Verifica se há mais documentos para carregar
+      setHasMore(!postSnapshot.empty && postSnapshot.docs.length === 10);
+    } catch (error) {
+      console.error('Erro ao buscar posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -91,19 +107,9 @@ export default function Painel() {
     try {
       const postRef = doc(db, 'posts', id);
       await deleteDoc(postRef);
-      setPosts(posts.filter(post => post.id !== id)); // Atualiza a lista localmente
+      setPosts(posts.filter(post => post.id !== id));
     } catch (error) {
-      console.error('Erro ao deletar post: ', error);
-    }
-  };
-
-  const deleteFav = async (id: string, collectionName: 'fav1' | 'fav2' | 'fav3') => {
-    try {
-      const favRef = doc(db, collectionName, id);
-      await deleteDoc(favRef);
-      setFavItems(favItems.filter(fav => fav.id !== id)); // Atualiza a lista localmente
-    } catch (error) {
-      console.error('Erro ao deletar favorito: ', error);
+      console.error('Erro ao deletar post:', error);
     }
   };
 
@@ -117,12 +123,9 @@ export default function Painel() {
       <main className="w-full flex h-screen">
         <SidebarTrigger />
         <div className="w-full h-screen flex flex-col items-center">
-
-           
           <div className="container mt-8">
             <h1 className="text-3xl font-bold text-center my-4">Últimas Postagens</h1>
-            
-            {loading ? (
+            {loading && posts.length === 0 ? (
               <p>Carregando...</p>
             ) : (
               <div>
@@ -130,23 +133,40 @@ export default function Painel() {
                   posts.map((post) => (
                     <div key={post.id} className="post mb-4 p-4 border rounded">
                       <h2 className="text-2xl font-semibold">{post.title}</h2>
-                      <p>{post.content}</p>
+                      <p className="clamp-2 text-ellipsis">{post.content}</p>
                       <p className="text-sm text-gray-500">
                         Publicado em {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
                       </p>
-                      <button
-                        onClick={() => deletePost(post.id)}
-                        className="mt-2 bg-red-500 text-white py-1 px-4 rounded hover:bg-red-600"
-                      >
-                        Deletar
-                      </button>
+                      <div className='flex items-center gap-2 py-2'>
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          className="flex justify-center h-10 items-center w-[150px]  mt-2 bg-red-500 text-white  rounded hover:bg-red-600"
+                        >
+                          Deletar
+                          <Trash/>
+                        </button>
+                        <button
+                          onClick={() => router.push(`/painel?postId=${post.id}`)}
+                          className="flex justify-center h-10 items-center w-[150px] mt-2  bg-blue-500 text-white  rounded hover:bg-blue-600"
+                        >
+                          Editar
+                          <Pencil/>
+                        </button>
+                      </div>
+                      
                     </div>
                   ))
                 ) : (
                   <p>Nenhum post encontrado</p>
                 )}
-
-                
+                {hasMore && (
+                  <button
+                    onClick={() => fetchPosts(true)} // Chama o fetch com isLoadMore = true
+                    className="mt-4 bg-green-500 text-white py-2 px-6 rounded hover:bg-gray-600"
+                  >
+                    Mostrar Mais
+                  </button>
+                )}
               </div>
             )}
           </div>

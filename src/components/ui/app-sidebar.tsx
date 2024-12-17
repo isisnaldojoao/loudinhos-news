@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings,CirclePlus } from "lucide-react";
+import { Calendar, Home, Inbox, Search, Settings,CirclePlus,LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -62,9 +62,9 @@ export function AppSidebar({ userEmail, handleLogout }: AppSidebarProps) {
               ))}
               <button
                 onClick={handleLogout}
-                className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+                className="flex w-full justify-center  gap-5 mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
               >
-                Sair
+                Sair <LogOut/>
               </button>
             </SidebarMenu>
           </SidebarGroupContent>

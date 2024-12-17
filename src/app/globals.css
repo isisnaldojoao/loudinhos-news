@@ -9,6 +9,30 @@ html, body {
   padding: 0;
 }
 
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-details {
+  padding: 20px; 
+  max-width: 900px; 
+  margin: 0 auto;
+}
+
+.post-details .content {
+  line-height: 1.8; 
+  margin-top: 20px; 
+  margin-bottom: 20px; 
+  text-align: justify;
+  word-wrap: break-word; 
+  font-size: 1.125rem; 
+}
+
+
 
 
 @layer base {

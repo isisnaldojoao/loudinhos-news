@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import { auth } from '../../lib/firebaseConfig'; 
 import { getFirestore, collection, setDoc, doc, serverTimestamp, getDocs } from 'firebase/firestore';
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/ui/app-sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
+
+import { Pencil } from "lucide-react";
 
 const db = getFirestore();
 
@@ -28,6 +30,8 @@ export default function Painel() {
   const [fav3Item, setFav3Item] = useState<FavItem | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [editingFav, setEditingFav] = useState<null | 'fav1' | 'fav2' | 'fav3'>(null);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -99,6 +103,49 @@ export default function Painel() {
     }
   };
 
+  const handleEditItem = (favCollection: 'fav1' | 'fav2' | 'fav3') => {
+    const favItem = favCollection === 'fav1' ? fav1Item : favCollection === 'fav2' ? fav2Item : fav3Item;
+  
+    if (favItem) {
+      setImage(favItem.image);
+      setTitle(favItem.title);
+      setUrl(favItem.url);
+      setEditingFav(favCollection);
+    }
+  };
+  
+  const handleSaveItem = async () => {
+    if (!editingFav) return;
+  
+    try {
+      const docRef = doc(db, editingFav, 'item');
+  
+      await setDoc(docRef, {
+        image,
+        title,
+        url,
+        createdAt: serverTimestamp(),
+      });
+  
+      const updatedItem: FavItem = { id: 'item', image, title, url };
+  
+      if (editingFav === 'fav1') {
+        setFav1Item(updatedItem);
+      } else if (editingFav === 'fav2') {
+        setFav2Item(updatedItem);
+      } else if (editingFav === 'fav3') {
+        setFav3Item(updatedItem);
+      }
+  
+      setEditingFav(null);
+      setImage('');
+      setTitle('');
+      setUrl('');
+    } catch (error) {
+      console.error('Erro ao salvar item: ', error);
+    }
+  };
+
   if (!user) {
     return <p>Carregando...</p>;
   }
@@ -112,7 +159,6 @@ export default function Painel() {
             
           <div className="container mt-8">
             <h1 className="text-3xl font-bold text-center my-4">Adicionar aos Destaques</h1>
-            <h2 className=" font-bold text-center my-4">(o site foi feito para trabalhar somente três destaques)</h2>
             
             {/* Formulário para adicionar itens aos favoritos */}
             <div className="mb-4">
@@ -176,7 +222,7 @@ export default function Painel() {
             ) : (
               <div>
                 {/* Exibindo os itens favoritos */}
-                {['fav1', 'fav2', 'fav3'].map((favCollection) => {
+                {(['fav1', 'fav2', 'fav3']as const).map((favCollection) => {
                   const favItem = favCollection === 'fav1' ? fav1Item : favCollection === 'fav2' ? fav2Item : fav3Item;
                   return (
                     <div key={favCollection} className="mb-6">
@@ -185,6 +231,14 @@ export default function Painel() {
                         <div className="p-4 border rounded mb-2">
                           <img src={favItem.image} alt={favItem.title} className="w-16 h-16 object-cover mb-2" />
                           <h3 className="font-bold">{favItem.title}</h3>
+                          <p>{favItem.url}</p>
+                          <button
+                            onClick={() => handleEditItem(favCollection)}
+                            className="flex bg-blue-500 text-white p-2 rounded mt-2"
+                          >
+                            Editar
+                            <Pencil/>
+                          </button>
                         </div>
                       ) : (
                         <p>Nenhum item encontrado.</p>
@@ -192,6 +246,7 @@ export default function Painel() {
                     </div>
                   );
                 })}
+
               </div>
             )}
           </div>
