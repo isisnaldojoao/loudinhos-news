@@ -65,21 +65,20 @@ export default function DetailPost() {
 
   return (
     <main className="w-full min-h-screen bg-zinc-900">
-      <title>{post?.title}</title>
-      <Head>
-        <meta name="description" content={`${post?.content}`} />
-        <meta name="keywords" content="loud, loudgg, loudlol, loudvalorant" />
-        <meta property="og:title" content={`${post?.title}`} />
-        <meta property="og:description" content={`${post?.title}`} />
-        <meta property="og:image" content={`${post?.imageUrl}`} />
-        <meta name="twitter:card" content={`${post?.imageUrl}`} />
-        <meta property="og:description" content={`${post?.title}`} />
-        <meta name="description" content={`${post?.content}`} />
-        <meta name="twitter:card" content={`${post?.imageUrl}`} />
-      </Head>
+      {post && (
+        <Head>
+          <meta name="description" content={post.content} />
+          <meta name="keywords" content="loud, loudgg, loudlol, loudvalorant" />
+          <meta property="og:title" content={post.title} />
+          <meta property="og:description" content={post.content} />
+          <meta property="og:image" content={post.imageUrl} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:image" content={post.imageUrl} />
+        </Head>
+      )}
       <header className="flex bg-green-600 justify-center items-center text-center p-5">
         <Link href="/">
-          <img className='w-auto h-12'  src='/logo.png' />
+          <img className='w-auto h-12' src='/logo.png' />
         </Link>
       </header>
       {post ? (
