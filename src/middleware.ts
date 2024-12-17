@@ -1,3 +1,5 @@
+
+
 import { NextRequest, NextResponse } from "next/server";
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebaseConfig';

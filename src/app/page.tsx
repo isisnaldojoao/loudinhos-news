@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../lib/firebaseConfig';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
+export const dynamic = "force-dynamic";
+
 
 import Head from 'next/head';  
 

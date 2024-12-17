@@ -5,6 +5,7 @@ import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../lib/firebaseConfig'; 
 import { getFirestore, collection, setDoc, doc, serverTimestamp, getDocs } from 'firebase/firestore';
+export const dynamic = "force-dynamic";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";

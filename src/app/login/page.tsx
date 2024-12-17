@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';	
 import { auth } from '@/lib/firebaseConfig';
+export const dynamic = "force-dynamic";
 
 export default function Login(){
     const [email, setEmail] = useState('');
