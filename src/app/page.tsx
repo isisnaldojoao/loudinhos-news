@@ -5,7 +5,8 @@ import { db } from '../lib/firebaseConfig';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
 export const dynamic = "force-dynamic";
-
+import AOS from 'aos';
+import 'aos/dist/aos.css'; 
 
 import Head from 'next/head';  
 
@@ -30,6 +31,20 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [visiblePosts, setVisiblePosts] = useState(10);
   const [currentFavIndex, setCurrentFavIndex] = useState(0);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // Defina a duração da animação
+      easing: 'ease-in-out', // Tipo de easing
+      once: true, // A animação ocorrerá apenas uma vez
+    });
+  
+    // Limpeza para quando o componente for desmontado
+    return () => {
+      AOS.refresh(); // Atualiza as animações no caso de mudanças de DOM
+    };
+  }, []);
+  
 
   useEffect(() => {
     const fetchPostsAndFavs = async () => {
@@ -89,7 +104,9 @@ export default function Home() {
       </header>
 
       {/* Exibição dos favoritos como slide contínuo */}
-      <section className="p-4 flex items-center justify-center">
+      <section 
+      className="p-4 flex items-center justify-center" 
+      data-aos="fade-down">
       <div className="flex flex-col md:flex-row">
         <div className="relative w-full md:w-[800px] h-[533px] m-1">
           <Link href={favItems.length > 1 ? favItems[0]?.url : '/'}>
@@ -145,17 +162,20 @@ export default function Home() {
             {posts.length > 0 ? (
               <>
                 {posts.slice(0, visiblePosts).map((post) => (
-                  <div key={post.id} className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-zinc-800">
+                  <div key={post.id} 
+                  className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-zinc-800"
+                  data-aos="fade-up"
+                  >
                     <Link className="flex" href={`/posts/${post.id}`}>
                       {post.imageUrl && (
                         <img
                           src={post.imageUrl}
                           alt={post.title}
-                          className="w-[250px] h-[150px] rounded m-5 sm:w-[250px] sm:h-[150px]"
+                          className="w-[100px] h-[80px] rounded m-5 sm:w-[250px] sm:h-[150px] sm:w-max-[250px]"
                         />
                       )}
                       <div className="flex flex-col justify-center gap-5  ">
-                        <h2 className="text-2xl font-semibold hover:text-green-600">
+                        <h2 className="sm:text-2xl font-semibold hover:text-green-600">
                           {post.title}
                         </h2>
                         <p className="text-sm">
@@ -184,6 +204,21 @@ export default function Home() {
           </>
         )}
       </section>
+      <footer className='flex flex-col bg-zinc-950 p-5 jusify-center items-center'>
+        <img className='w-[100px] h-auto' src='/LOUDINHOS.png' />
+        <div className='flex gap-20 my-5'>
+          <Link href={'https://www.tiktok.com/@loudinhosofc/'}>
+            <img className='bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600' src='/tiktok.svg'/>
+          </Link>
+          <Link href={'https://www.instagram.com/loudinhos/'}>
+            <img className='bg-zinc-900 rounded-full p-4 cursor-pointer hover:bg-green-600' src='/instagram.svg' />
+          </Link>
+          <Link href={'https://x.com/loudinhos/'}>
+            <img className='bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600' src='/twitter-x.svg'/>
+          </Link>
+          
+        </div>
+      </footer>
     </main>
   );
 }

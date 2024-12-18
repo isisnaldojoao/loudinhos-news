@@ -20,6 +20,7 @@ function PostForm() {
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [source, setSource] = useState('');
   const router = useRouter();
 
   // Utilizando Suspense e useSearchParams
@@ -108,10 +109,16 @@ function PostForm() {
           content,
           imageUrl: finalImageUrl,
           createdAt: serverTimestamp(),
+          author: user?.email || 'Usuário desconhecido',
+          source, 
         };
+
+        console.log('Dados sendo salvos:', newPost);
+
         setTitle('');
         setContent('');
         setImageUrl('');
+        setSource('');
         const docRef = await addDoc(collection(db, 'posts'), newPost);
         console.log('Postagem criada com ID: ', docRef.id);
       }
@@ -160,6 +167,18 @@ function PostForm() {
                   className="w-full p-2 border rounded"
                 />
               </div>
+              <div className="mb-4 w-full">
+                <label htmlFor="source" className="block text-left">Fonte</label>
+                <input
+                  id="source"
+                  type="text"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  placeholder="Digite a fonte da imagem"
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
               <div className="mb-4 w-full">
                 <label htmlFor="content" className="block text-left">Conteúdo</label>
                 <textarea
