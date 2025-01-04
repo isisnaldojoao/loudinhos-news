@@ -76,9 +76,12 @@ export default function DetailPost() {
   }
 
   return (
+    
+
     <main className="w-full min-h-screen bg-zinc-900">
       {post && (
         <Head>
+          <title>{post.title}</title>
           <meta name="description" content={post.content} />
           <meta name="keywords" content="loud, loudgg, loudlol, loudvalorant" />
           <meta property="og:title" content={post.title} />

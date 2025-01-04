@@ -171,6 +171,7 @@ export default function Home() {
                         <img
                           src={post.imageUrl}
                           alt={post.title}
+                          style={{width: '200px', height: '150px',objectFit: 'cover'}}
                           className="w-[100px] h-[80px] rounded m-5 sm:w-[250px] sm:h-[150px] sm:w-max-[250px]"
                         />
                       )}
