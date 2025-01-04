@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 
+
 import Head from 'next/head';  
 
 interface Post {
@@ -171,8 +172,7 @@ export default function Home() {
                         <img
                           src={post.imageUrl}
                           alt={post.title}
-                          style={{width: '200px', height: '150px',objectFit: 'cover'}}
-                          className="w-[100px] h-[80px] rounded m-5 sm:w-[250px] sm:h-[150px] sm:w-max-[250px]"
+                          className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px] "
                         />
                       )}
                       <div className="flex flex-col justify-center gap-5  ">
