@@ -67,6 +67,12 @@ export default function DetailPost() {
     return authorName.charAt(0).toUpperCase() + authorName.slice(1);
   }
 
+  function calculateTime(text:String,velocity = 200){
+    const textForNews = text.split(/\s+/).length; 
+    const timeMinutes = textForNews / velocity; 
+    return Math.ceil(timeMinutes);
+  }
+
   if (loading) {
     return <p>Carregando...</p>;
   }
@@ -78,7 +84,7 @@ export default function DetailPost() {
   return (
     
 
-    <main className="w-full min-h-screen bg-zinc-900">
+    <main className="w-full min-h-screen bg-black">
       {post && (
         <Head>
           <title>{post.title}</title>
@@ -98,16 +104,7 @@ export default function DetailPost() {
       </header>
       {post ? (
         <div className="flex flex-col post-details text-white justify-center items-center p-6 rounded-lg">
-          <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-          {post.createdAt && (
-            <p className="text-sm text-gray-500">
-              {' '}
-              {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-            </p>
-          )}
-          {post.author && (
-            <p className=" text-sm text-gray-400 mb-2">Publicado por: <strong>{getAuthor(post.author)}</strong></p>
-          )}
+          <h1 className="text-3xl text-green-600 font-bold mb-4">{post.title}</h1>
           {post.imageUrl && (
             <img
               src={post.imageUrl}
@@ -116,14 +113,48 @@ export default function DetailPost() {
             />
           )}
           {post.source && (
-            <p>Fonte: <strong>{post.source}</strong> </p>
+            <p>Reprodução: <strong>{post.source}</strong> </p>
           )}
+          <div className='w-full flex flex-col justify-between mt-2'>
+            
+            <div className='w-full flex justify-between mt-2'>
+              <div className='flex-3'>
+                  <h1 className='font-bold'>League of Legends</h1>
+              </div>
+              <div className='flex-2'>
+                {post.content && (
+                  <p className=" text-sm text-white mb-2"> <strong>
+                  {calculateTime(post.content)}
+                  {calculateTime(post.content) > 1 ? ' minutos' : ' minuto'} de leitura
+                  </strong></p>
+                )}
+              </div>
+            </div>
+
+            <div className='w-full flex items-center'>
+              <div className="h-[3px] bg-green-600 w-1/4"></div> 
+              <div className="h-px bg-green-300 w-3/4"></div> 
+            </div>
+
+          </div>
+          
           <p
             className="content"
             dangerouslySetInnerHTML={{
               __html: post.content.replace(/\n/g, '<br />'), 
             }}
           />
+          <div className='w-full flex flex-col justify-start'>
+            {post.createdAt && (
+              <p className="text-sm text-white">
+                {' '}
+                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+              </p>
+            )}
+            {post.author && (
+              <p className=" text-sm text-white mb-2">Por: <strong>{getAuthor(post.author)}</strong></p>
+            )}
+          </div>
         </div>
       ) : (
         <p>Post não encontrado.</p>

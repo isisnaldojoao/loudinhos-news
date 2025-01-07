@@ -7,6 +7,7 @@ import Link from 'next/link';
 export const dynamic = "force-dynamic";
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
+import { Clock } from 'lucide-react';
 
 
 import Head from 'next/head';  
@@ -83,13 +84,19 @@ export default function Home() {
     fetchPostsAndFavs();
   }, []);
 
+  function calculateTime(text:String,velocity = 200){
+    const textForNews = text.split(/\s+/).length; 
+    const timeMinutes = textForNews / velocity; 
+    return Math.ceil(timeMinutes);
+  }
+
 
   const handleShowMore = () => {
     setVisiblePosts((prev) => prev + 10);
   };
 
   return (
-    <main className="w-full min-h-screen bg-zinc-900">
+    <main className="w-full min-h-screen bg-black">
       <title>LOUDinhos</title>
       <Head>
         <meta name="description" content="Site sobre a LOUD e seus conteúdos" />
@@ -155,16 +162,20 @@ export default function Home() {
       </section>
 
       <section className="p-4 flex flex-col items-center justify-center">
-
+      
         {loading ? (
           <p className="text-center text-white">Carregando...</p>
         ) : (
           <>
+          <h1 className='uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]'>
+            Confiram nossas últimas postagens
+          </h1>
+
             {posts.length > 0 ? (
               <>
                 {posts.slice(0, visiblePosts).map((post) => (
                   <div key={post.id} 
-                  className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-zinc-800"
+                  className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
                   data-aos="fade-up"
                   >
                     <Link className="flex" href={`/posts/${post.id}`}>
@@ -175,12 +186,22 @@ export default function Home() {
                           className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px] "
                         />
                       )}
+                      <div className='flex'>
+                        
+                      </div>
                       <div className="flex flex-col justify-center gap-5  ">
-                        <h2 className="sm:text-2xl font-semibold hover:text-green-600">
+                        {post.content && (
+                            <p className=" text-sm text-white">
+                            {calculateTime(post.content)}
+                            {calculateTime(post.content) > 1 ? ' minutos ' : ' minuto '}
+                            de leitura
+                            </p>
+                          )}
+                        <h2 className="sm:text-2xl font-semibold text-green-600">
                           {post.title}
                         </h2>
-                        <p className="text-sm">
-                          Publicado em{' '}
+                        <p className="flex gap-2 items-center text-sm">
+                          <Clock/>{' '}
                           {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
                         </p>
                       </div>
