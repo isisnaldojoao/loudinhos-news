@@ -190,20 +190,25 @@ export default function Home() {
                         
                       </div>
                       <div className="flex flex-col justify-center gap-5  ">
+                        
+                        <h2 className="sm:text-2xl font-semibold text-green-600">
+                          {post.title}
+                        </h2>
+                        <div className='flex gap-2 items-center'>
+                        <p className="flex gap-2 items-center text-sm">
+                          <Clock/>{' '}
+                          {new Date(post.createdAt.seconds * 1000).toLocaleDateString()} 
+                        </p>
+                        <p className='mx-2'>|</p>
                         {post.content && (
-                            <p className=" text-sm text-white">
+                            <p className=" text-sm text-white">  
                             {calculateTime(post.content)}
                             {calculateTime(post.content) > 1 ? ' minutos ' : ' minuto '}
                             de leitura
                             </p>
                           )}
-                        <h2 className="sm:text-2xl font-semibold text-green-600">
-                          {post.title}
-                        </h2>
-                        <p className="flex gap-2 items-center text-sm">
-                          <Clock/>{' '}
-                          {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-                        </p>
+                        </div>
+                        
                       </div>
                     </Link>
                   </div>
