@@ -19,6 +19,7 @@ interface FavItem {
   image: string;
   title: string;
   url: string;
+  category: string;
 }
 
 export default function Painel() {
@@ -32,7 +33,7 @@ export default function Painel() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [editingFav, setEditingFav] = useState<null | 'fav1' | 'fav2' | 'fav3'>(null);
-
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -81,11 +82,12 @@ export default function Painel() {
         image,
         title,
         url,
+        category,
         createdAt: serverTimestamp(),
       });
 
       // Atualiza o estado com o novo item
-      const newItem: FavItem = { id: 'item', image, title, url };
+      const newItem: FavItem = { id: 'item', image, title, url,category };
 
       if (favCollection === 'fav1') {
         setFav1Item(newItem);
@@ -112,6 +114,7 @@ export default function Painel() {
       setTitle(favItem.title);
       setUrl(favItem.url);
       setEditingFav(favCollection);
+      setCategory(favItem.category);  // Carregar a categoria ao editar
     }
   };
   
@@ -128,7 +131,7 @@ export default function Painel() {
         createdAt: serverTimestamp(),
       });
   
-      const updatedItem: FavItem = { id: 'item', image, title, url };
+      const updatedItem: FavItem = { id: 'item', image, title, url,category };
   
       if (editingFav === 'fav1') {
         setFav1Item(updatedItem);
@@ -197,6 +200,21 @@ export default function Painel() {
               />
 
             </div>
+
+            <div className='flex justify-center items-center'>
+              <img src='./chart-bar-stacked.svg' className='m-2'/>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="border p-2 rounded mb-4 w-full"
+              >
+                <option value="">Selecione uma categoria</option>
+                <option value="FREE FIRE">FREE FIRE</option>
+                <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
+                <option value="VALORANT">VALORANT</option>
+              </select>
+            </div>
+
               
               <button 
                 onClick={() => handleAddItem('fav1')} 
@@ -232,6 +250,7 @@ export default function Painel() {
                         <div className="p-4 border rounded mb-2">
                           <img src={favItem.image} alt={favItem.title} className="w-16 h-16 object-cover mb-2" />
                           <h3 className="font-bold">{favItem.title}</h3>
+                          <p>{favItem.category}</p>  {/* Exibindo a categoria */}
                           <p>{favItem.url}</p>
                           <button
                             onClick={() => handleEditItem(favCollection)}

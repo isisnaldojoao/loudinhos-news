@@ -16,6 +16,7 @@ interface Post {
   imageUrl: string;
   author: string;
   source:string;
+  category: string[];
 }
 
 export default function DetailPost() {
@@ -43,6 +44,7 @@ export default function DetailPost() {
               imageUrl: postData.imageUrl || '',
               author: postData.author || 'Autor desconhecido', // Garantir que o campo imageUrl seja atribuído
               source:postData.source,
+              category: postData.category || [],
             });
           } else {
             setError('Post não encontrado.');
@@ -119,7 +121,7 @@ export default function DetailPost() {
             
             <div className='w-full flex justify-between mt-2'>
               <div className='flex-3'>
-                  <h1 className='font-bold'>League of Legends</h1>
+                  <h1 className='font-bold'>{post.category}</h1>
               </div>
               <div className='flex-2'>
                 {post.content && (

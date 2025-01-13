@@ -9,7 +9,6 @@ import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 import { Clock } from 'lucide-react';
 
-
 import Head from 'next/head';  
 
 interface Post {
@@ -18,6 +17,8 @@ interface Post {
   content: string;
   createdAt: { seconds: number };
   imageUrl: string;
+  category: string[];
+  videoUrl:string;
 }
 
 interface FavItem {
@@ -25,14 +26,14 @@ interface FavItem {
   image: string;
   title: string;
   url: string;
+  category: string;
+  videoUrl:string;
 }
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [favItems, setFavItems] = useState<FavItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [visiblePosts, setVisiblePosts] = useState(10);
-  const [currentFavIndex, setCurrentFavIndex] = useState(0);
 
   useEffect(() => {
     AOS.init({
@@ -40,13 +41,12 @@ export default function Home() {
       easing: 'ease-in-out', // Tipo de easing
       once: true, // A animação ocorrerá apenas uma vez
     });
-  
+
     // Limpeza para quando o componente for desmontado
     return () => {
       AOS.refresh(); // Atualiza as animações no caso de mudanças de DOM
     };
   }, []);
-  
 
   useEffect(() => {
     const fetchPostsAndFavs = async () => {
@@ -84,16 +84,7 @@ export default function Home() {
     fetchPostsAndFavs();
   }, []);
 
-  function calculateTime(text:String,velocity = 200){
-    const textForNews = text.split(/\s+/).length; 
-    const timeMinutes = textForNews / velocity; 
-    return Math.ceil(timeMinutes);
-  }
 
-
-  const handleShowMore = () => {
-    setVisiblePosts((prev) => prev + 10);
-  };
 
   return (
     <main className="w-full min-h-screen bg-black">
@@ -108,131 +99,205 @@ export default function Home() {
       </Head>
       
       <header className="flex bg-green-600 justify-center items-center text-center p-5">
-        <img className='w-auto h-12'  src='/logo.png' />
+        <img className='w-auto h-12' src='/logo.png' />
       </header>
 
       {/* Exibição dos favoritos como slide contínuo */}
-      <section 
-      className="p-4 flex items-center justify-center" 
-      data-aos="fade-down">
-      <div className="flex flex-col md:flex-row">
-        <div className="relative w-full md:w-[800px] h-[533px] m-1">
-          <Link href={favItems.length > 1 ? favItems[0]?.url : '/'}>
-            <img
-              className="w-full h-full object-cover"
-              src={favItems.length > 1 ? favItems[0]?.image : '/default-image.jpg'}
-              alt={favItems.length > 1 ? favItems[0]?.title : 'Imagem padrão'}
-            />
-            <h2
-              className="absolute bottom-0 left-0 w-full p-2 text-white bg-black bg-opacity-50 text-3xl font-bold"
-              style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}
-            >
-              {favItems.length > 1 ? favItems[0]?.title : 'Título padrão'}
-            </h2>
-          </Link>
-        </div>
-        <div className="flex flex-col w-full md:w-[400px]">
-          <div className="relative w-full h-[260px] m-1">
-            <Link href={favItems.length > 1 ? favItems[1]?.url : '/'}>
+      <section className="p-4 flex items-center justify-center" data-aos="fade-down">
+        <div className="flex flex-col md:flex-row">
+          <div className="relative w-full md:w-[800px] h-[533px] m-1">
+            <Link href={favItems.length > 0 ? favItems[0]?.url : '/'}>
               <img
                 className="w-full h-full object-cover"
-                src={favItems.length > 1 ? favItems[1]?.image : '/default-image.jpg'}
-                alt={favItems.length > 1 ? favItems[1]?.title : 'Imagem padrão'}
+                src={favItems.length > 0 ? favItems[0]?.image : '/default-image.jpg'}
+                alt={favItems.length > 0 ? favItems[0]?.title : 'Imagem padrão'}
               />
-              <h2 className="absolute bottom-0 left-0 w-full p-2 text-white bg-black bg-opacity-50 font-bold">
-                {favItems.length > 1 ? favItems[1]?.title : 'Título padrão'}
-              </h2>
+              <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+              <div className="absolute bottom-0 left-0 w-full p-2 text-white font-bold">
+                <span className="text-sm bg-black p-2 border-b-2 border-green-600">
+                  {favItems.length > 0 ? favItems[0]?.category : 'Categoria padrão'}
+                </span>
+                <br />
+                <h2 className='mt-2 text-2xl'>
+                  {favItems.length > 0 ? favItems[0]?.title : 'Título padrão'}
+                </h2>
+              </div>
             </Link>
           </div>
-          <Link href={favItems.length > 1 ? favItems[2]?.url : '/'}>
-            <div className="relative w-full h-[265px] m-1">
-              <img
-                className="w-full h-full object-cover"
-                src={favItems.length > 1 ? favItems[2]?.image : '/default-image.jpg'}
-                alt={favItems.length > 1 ? favItems[2]?.title : 'Imagem padrão'}
-              />
-              <h2 className="absolute bottom-0 left-0 w-full p-2 text-white bg-black bg-opacity-50 font-bold">
-                {favItems.length > 1 ? favItems[2]?.title : 'Título padrão'}
-              </h2>
+          <div className="flex flex-col w-full md:w-[400px]">
+            <div className="relative w-full h-[260px] m-1">
+              <Link href={favItems.length > 1 ? favItems[1]?.url : '/'}>
+                <img
+                  className="w-full h-full object-cover"
+                  src={favItems.length > 1 ? favItems[1]?.image : '/default-image.jpg'}
+                  alt={favItems.length > 1 ? favItems[1]?.title : 'Imagem padrão'}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+                <div className="absolute bottom-0 left-0 w-full p-2 text-white font-bold">
+                  <span className="text-sm bg-black p-2 border-b-2 border-green-600">
+                    {favItems.length > 1 ? favItems[1]?.category : 'Categoria padrão'}
+                  </span>
+                  <br />
+                  <h2 className='mt-2'>
+                    {favItems.length > 1 ? favItems[1]?.title : 'Título padrão'}
+                  </h2>
+                </div>
+              </Link>
             </div>
-          </Link>
+            <Link href={favItems.length > 2 ? favItems[2]?.url : '/'}>
+              <div className="relative w-full h-[265px] m-1">
+                <img
+                  className="w-full h-full object-cover"
+                  src={favItems.length > 2 ? favItems[2]?.image : '/default-image.jpg'}
+                  alt={favItems.length > 2 ? favItems[2]?.title : 'Imagem padrão'}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+                <div className="absolute bottom-0 left-0 w-full p-2 text-white font-bold">
+                  <span className="text-sm bg-black p-2 border-b-2 border-green-600">
+                    {favItems.length > 2 ? favItems[2]?.category : 'Categoria padrão'}
+                  </span>
+                  <br />
+                  <h2 className='mt-2'>
+                    {favItems.length > 2 ? favItems[2]?.title : 'Título padrão'}
+                  </h2>
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
-      </div>
-
       </section>
 
+      {/* Exibição das últimas postagens */}
       <section className="p-4 flex flex-col items-center justify-center">
-      
-        {loading ? (
-          <p className="text-center text-white">Carregando...</p>
-        ) : (
-          <>
-          <h1 className='uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]'>
-            Confiram nossas últimas postagens
-          </h1>
+          {loading ? (
+            <p className="text-center text-white">Carregando...</p>
+          ) : (
+            <>
+              <h1 className='uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]'>
+                Confiram nossas últimas postagens
+              </h1>
 
-            {posts.length > 0 ? (
-              <>
-                {posts.slice(0, visiblePosts).map((post) => (
-                  <div key={post.id} 
-                  className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
-                  data-aos="fade-up"
-                  >
-                    <Link className="flex" href={`/posts/${post.id}`}>
-                      {post.imageUrl && (
-                        <img
-                          src={post.imageUrl}
-                          alt={post.title}
-                          className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px] "
-                        />
-                      )}
-                      <div className='flex'>
-                        
+              {posts.length > 0 ? (
+                <>
+                  {posts
+                    .filter(post => post.category && !post.category.includes("VIDEOS"))  // Verifica se "category" existe e se não é "VIDEOS"
+                    .slice(0, 2)  // Limita a 2 postagens
+                    .map((post) => (
+                      <div key={post.id} 
+                        className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
+                        data-aos="fade-up"
+                      >
+                        <Link className="flex" href={`/posts/${post.id}`}>
+                          <div className="relative">
+                            {post.imageUrl && (
+                              <img
+                                src={post.imageUrl}
+                                alt={post.title}
+                                className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px]"
+                              />
+                            )}
+                            <span className="absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
+                              {post.category}
+                            </span>
+                          </div>
+                          <div className="flex flex-col justify-center gap-5">
+                            <h2 className="sm:text-2xl font-semibold text-green-600">{post.title}</h2>
+                            
+                            {post.content && (
+                              <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
+                                {post.content}
+                              </p>
+                            )}
+
+                            <div className="flex gap-2 items-center">
+                              <p className="flex gap-2 items-center text-sm">
+                                <Clock />{' '}
+                                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+                              </p>
+                              
+                              
+                            </div>
+                          </div>
+                        </Link>
                       </div>
-                      <div className="flex flex-col justify-center gap-5  ">
-                        
-                        <h2 className="sm:text-2xl font-semibold text-green-600">
-                          {post.title}
-                        </h2>
-                        <div className='flex gap-2 items-center'>
-                        <p className="flex gap-2 items-center text-sm">
-                          <Clock/>{' '}
-                          {new Date(post.createdAt.seconds * 1000).toLocaleDateString()} 
-                        </p>
-                        <p className='mx-2'>|</p>
-                        {post.content && (
-                            <p className=" text-sm text-white">  
-                            {calculateTime(post.content)}
-                            {calculateTime(post.content) > 1 ? ' minutos ' : ' minuto '}
-                            de leitura
-                            </p>
+                    ))}
+                </>
+              ) : (
+                <p className="text-center text-white">Nenhuma postagem encontrada.</p>
+              )}
+            </>
+          )}
+        </section>
+
+        <section className="w-full p-4 flex items-center justify-center min-h-screen">
+  <div className="w-[1200px] flex flex-col">
+    {loading ? (
+      <p className="text-center text-white">Carregando...</p>
+    ) : (
+      <>
+        <div className="w-[1200px] flex justify-between mt-2">
+          <div className="flex-3">
+            <h1 className="font-bold text-green-600 text-4xl">NOSSOS VIDEOS</h1>
+          </div>
+          <div className="flex-2">
+            <p className="text-sm text-white mb-2">
+              <strong></strong>
+            </p>
+          </div>
+        </div>
+
+        <div className="w-[1200px] flex items-center">
+          <div className="h-[3px] bg-green-600 w-1/4"></div>
+          <div className="h-px bg-green-300 w-3/4"></div>
+        </div>
+
+        {posts.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              {posts
+                .filter((post) => post.category && post.category.includes("VIDEOS")) // Filtragem por categoria
+                .slice(0, 2) // Limita a exibição a duas postagens
+                .map((post) => (
+                  <div
+                    key={post.id}
+                    className="flex flex-col w-full p-4 text-white rounded bg-black"
+                    data-aos="fade-up"
+                  >
+                    <Link href={post.videoUrl ? post.videoUrl : "/"} passHref>
+                      <div className="flex flex-col w-full p-4 text-white rounded bg-black">
+                        <div className="relative">
+                          {post.imageUrl && (
+                            <img
+                              src={post.imageUrl}
+                              alt={post.title}
+                              className="w-full h-[200px] sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
+                            />
                           )}
                         </div>
-                        
+                        <div className="ml-3">
+                          <h2 className="text-xl font-bold">{post.title}</h2>
+                        </div>
+                        <span className="absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[90px]">
+                          {post.category}
+                        </span>
                       </div>
                     </Link>
                   </div>
                 ))}
-
-                {visiblePosts < posts.length && (
-                  <div className="text-center mt-4">
-                    <button
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                      onClick={handleShowMore}
-                    >
-                      Mostrar mais
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-center text-white">Nenhum post encontrado.</p>
-            )}
+            </div>
           </>
+        ) : (
+          <p className="text-center text-white">Nenhum post encontrado.</p>
         )}
-      </section>
-      <footer className='flex flex-col bg-zinc-950 p-5 jusify-center items-center'>
-        <img className='w-[100px] h-auto' src='/LOUDINHOS.png' />
+      </>
+    )}
+  </div>
+</section>
+
+
+
+      <footer className='flex justify-between bg-zinc-950 p-5  items-center'>
+        <img className='w-[150px]  h-[25px] mr-5' src='/logo.png' />
         <div className='flex gap-20 my-5'>
           <Link href={'https://www.tiktok.com/@loudinhosofc/'}>
             <img className='bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600' src='/tiktok.svg'/>

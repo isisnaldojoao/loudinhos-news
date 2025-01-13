@@ -19,11 +19,12 @@ function PostForm() {
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState('');
+  const [category, setCategory] = useState(''); // Adiciona categoria
+  const [videoUrl, setVideoUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [source, setSource] = useState('');
   const router = useRouter();
 
-  // Utilizando Suspense e useSearchParams
   const postId = useSearchParams()?.get('postId');
 
   useEffect(() => {
@@ -51,6 +52,7 @@ function PostForm() {
             setTitle(postData.title);
             setContent(postData.content);
             setImageUrl(postData.imageUrl || '');
+            setCategory(postData.category || ''); // Carrega categoria
           } else {
             console.error('Post não encontrado!');
           }
@@ -98,38 +100,38 @@ function PostForm() {
           title,
           content,
           imageUrl: finalImageUrl,
+          category, // Atualiza categoria
         });
         console.log('Postagem atualizada!');
-        setTitle('');
-        setContent('');
-        setImageUrl('');
       } else {
         const newPost = {
           title,
           content,
           imageUrl: finalImageUrl,
+          category, // Salva categoria
+          videoUrl, // Salva o link do vídeo
           createdAt: serverTimestamp(),
           author: user?.email || 'Usuário desconhecido',
-          source, 
+          source,
         };
 
         console.log('Dados sendo salvos:', newPost);
 
-        setTitle('');
-        setContent('');
-        setImageUrl('');
-        setSource('');
         const docRef = await addDoc(collection(db, 'posts'), newPost);
         console.log('Postagem criada com ID: ', docRef.id);
       }
 
+      setTitle('');
+      setContent('');
+      setImageUrl('');
+      setCategory('');
+      setSource('');
       router.push('/painel');
     } catch (error) {
       console.error('Erro ao salvar postagem: ', error);
     }
   };
 
-  // Redirecionamento para login fora do render
   if (!user) {
     return null; // Evita renderização até que o redirecionamento ocorra
   }
@@ -156,6 +158,7 @@ function PostForm() {
                   className="w-full p-2 border rounded"
                 />
               </div>
+              
               <div className="mb-4 w-full">
                 <label htmlFor="imageUrl" className="block text-left">URL da Imagem (opcional)</label>
                 <input
@@ -179,6 +182,46 @@ function PostForm() {
                 />
               </div>
 
+              <h1 className='font-bold'>Opções de video</h1>
+              <hr/>
+
+              <div className="mb-4 w-full">
+              <label htmlFor="videoUrl" className="block text-left">Link do Vídeo (opcional)</label>
+              <input
+                id="videoUrl"
+                type="text"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="Cole o link do vídeo"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+
+            <div>
+
+            </div>
+
+                <div className="mb-4 mt-2 w-full">
+                <label htmlFor="category" className="block text-left">Categoria</label>
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Selecione uma categoria</option>
+                  <option value="FREE FIRE">FREE FIRE</option>
+                  <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
+                  <option value="VALORANT">VALORANT</option>
+                  <option value="VIDEOS">VIDEOS</option>
+                </select>
+              </div>
+
+             
+
+            <hr/>
+
+
               <div className="mb-4 w-full">
                 <label htmlFor="content" className="block text-left">Conteúdo</label>
                 <textarea
@@ -191,7 +234,7 @@ function PostForm() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-500 rounded-lg text-white py-2 hover:scale-105 transition duration-200"
+                className="w-full bg-blue-500 rounded-lg text-white py-2 hover:scale-105 transition duration-200 mb-4"
               >
                 {isEditing ? 'Salvar Alterações' : 'Enviar'}
               </button>
