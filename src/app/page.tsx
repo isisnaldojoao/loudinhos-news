@@ -264,24 +264,25 @@ export default function Home() {
                     data-aos="fade-up"
                   >
                     <Link href={post.videoUrl ? post.videoUrl : "/"} passHref>
-                      <div className="flex flex-col w-full p-4 text-white rounded bg-black">
-                        <div className="relative">
-                          {post.imageUrl && (
-                            <img
-                              src={post.imageUrl}
-                              alt={post.title}
-                              className="w-full h-[200px] sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="ml-3">
-                          <h2 className="text-xl font-bold">{post.title}</h2>
-                        </div>
-                        <span className="absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[90px]">
-                          {post.category}
-                        </span>
-                      </div>
-                    </Link>
+  <div className="flex flex-col w-full p-4 text-white rounded bg-black">
+    <div className="relative">
+      {post.imageUrl && (
+        <img
+          src={post.imageUrl}
+          alt={post.title}
+          className="w-full h-[200px] sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
+        />
+      )}
+      <span className="absolute bottom-[30px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
+        {post.category}
+      </span>
+    </div>
+    <div className="ml-3">
+      <h2 className="text-xl font-bold">{post.title}</h2>
+    </div>
+  </div>
+</Link>
+
                   </div>
                 ))}
             </div>
