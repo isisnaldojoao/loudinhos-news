@@ -161,8 +161,8 @@ export default function DetailPost() {
       ) : (
         <p>Post não encontrado.</p>
       )}
-      <footer className='flex flex-col bg-zinc-950 p-5 jusify-center items-center'>
-        <img className='w-[100px] h-auto' src='/LOUDINHOS.png' />
+      <footer className='flex justify-between bg-zinc-950 p-5  items-center'>
+        <img className='w-[150px]  h-[25px] mr-5' src='/logo.png' />
         <div className='flex gap-20 my-5'>
           <Link href={'https://www.tiktok.com/@loudinhosofc/'}>
             <img className='bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600' src='/tiktok.svg'/>
