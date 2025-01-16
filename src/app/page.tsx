@@ -113,7 +113,7 @@ export default function Home() {
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      className="flex bg-green-600 justify-between items-center text-center p-5">
+      className="flex flex-col sm:flex-row sm:justify-between  items-center text-center p-5">
         <img 
         
         className='w-auto h-8' src='/logo.png' />
@@ -204,65 +204,115 @@ export default function Home() {
 
       {/* Exibição das últimas postagens */}
       <section className="p-4 flex flex-col items-center justify-center">
-          {loading ? (
-            <p className="text-center text-white">Carregando...</p>
-          ) : (
-            <>
-              <h1 className='uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]'>
-                Confiram nossas últimas postagens
-              </h1>
+  {loading ? (
+    <p className="text-center text-white">Carregando...</p>
+  ) : (
+    <>
+      <h1 className="uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]">
+        Confiram nossas últimas postagens
+      </h1>
 
-              {posts.length > 0 ? (
-                <>
-                  {posts
-                    .filter(post => post.category && !post.category.includes("VIDEOS"))  // Verifica se "category" existe e se não é "VIDEOS"
-                    .slice(0, 2)  // Limita a 2 postagens
-                    .map((post) => (
-                      <div key={post.id} 
-                        className="flex flex-col w-full md:w-[1200px] flex post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
-                        data-aos="fade-up"
-                      >
-                        <Link className="flex" href={`/posts/${post.id}`}>
-                          <div className="relative">
-                            {post.imageUrl && (
-                              <img
-                                src={post.imageUrl}
-                                alt={post.title}
-                                className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px]"
-                              />
-                            )}
-                            <span className="w-2/4 sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
-                              {post.category}
-                            </span>
-                          </div>
-                          <div className="flex flex-col justify-center gap-5">
-                            <h2 className="ml-8 text-xs sm:ml-0 sm:text-2xl font-semibold text-green-600">{post.title}</h2>
-                            
-                            {post.content && (
-                              <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
-                                {post.content}
-                              </p>
-                            )}
+      {/* Versão para Desktop */}
+      <div className="hidden md:block">
+        {posts.length > 0 ? (
+          <>
+            {posts
+              .filter(post => post.category && !post.category.includes("VIDEOS")) // Verifica se "category" existe e se não é "VIDEOS"
+              .slice(0, 2) // Limita a 2 postagens
+              .map((post) => (
+                <div
+                  key={post.id}
+                  className="flex flex-col w-full md:w-[1200px] post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
+                  data-aos="fade-up"
+                >
+                  <Link className="flex" href={`/posts/${post.id}`}>
+                    <div className="relative">
+                      {post.imageUrl && (
+                        <img
+                          src={post.imageUrl}
+                          alt={post.title}
+                          className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px]"
+                        />
+                      )}
+                      <span className="w-[100px]/4 sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
+                        {post.category}
+                      </span>
+                    </div>
+                    <div className="flex flex-col justify-center gap-5">
+                      <h2 className="ml-8 text-xs sm:ml-0 sm:text-2xl font-semibold text-green-600">
+                        {post.title}
+                      </h2>
 
-                            <div className="flex gap-2 items-center">
-                              <p className="flex gap-2 items-center text-sm">
-                                <Clock />{' '}
-                                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-                              </p>
-                              
-                              
-                            </div>
-                          </div>
-                        </Link>
+                      {post.content && (
+                        <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
+                          {post.content}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2 items-center">
+                        <p className="flex gap-2 items-center text-sm">
+                          <Clock />{' '}
+                          {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+                        </p>
                       </div>
-                    ))}
-                </>
-              ) : (
-                <p className="text-center text-white">Nenhuma postagem encontrada.</p>
-              )}
-            </>
-          )}
-        </section>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+          </>
+        ) : (
+          <p className="text-center text-white">Nenhuma postagem encontrada.</p>
+        )}
+      </div>
+
+      {/* Versão para Mobile */}
+      <div className="block md:hidden">
+        {posts.length > 0 ? (
+          <>
+            {posts
+              .filter(post => post.category && !post.category.includes("VIDEOS")) // Verifica se "category" existe e se não é "VIDEOS"
+              .slice(0, 2) // Limita a 2 postagens
+              .map((post) => (
+                <div
+                  key={post.id}
+                  className="flex flex-col w-full post mb-4 p-4 text-white rounded bg-black border-green-500 border"
+                  data-aos="fade-up"
+                >
+                  <Link className="flex flex-col" href={`/posts/${post.id}`}>
+                    {post.imageUrl && (
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-full h-[150px] object-cover rounded mb-4"
+                      />
+                    )}
+                    <h2 className="text-lg font-semibold text-green-500 mb-2">
+                      {post.title}
+                    </h2>
+                    {post.content && (
+                      <p className="text-sm text-gray-300 line-clamp-2">
+                        {post.content}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mt-4">
+                      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                        <span className="w-full sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-green-600 ">
+                          {post.category}
+                        </span>
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+          </>
+        ) : (
+          <p className="text-center text-white">Nenhuma postagem encontrada.</p>
+        )}
+      </div>
+    </>
+  )}
+</section>
+
 
         <section className="w-full p-4 flex items-center justify-center min-h-screen">
   <div className="w-full sm:w-[1200px] flex flex-col items-center justify-center">
@@ -308,7 +358,7 @@ export default function Home() {
                               className="w-3/4 h-auto sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
                             />
                           )}
-                          <span className="absolute bottom-[30px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
+                          <span className="absolute bottom-[50px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
                             {post.category}
                           </span>
                         </div>

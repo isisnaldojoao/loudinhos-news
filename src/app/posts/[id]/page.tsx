@@ -118,7 +118,7 @@ export default function DetailPost() {
              backgroundSize: "cover",
              backgroundPosition: "center",
            }}
-           className="flex bg-green-600 justify-between items-center text-center p-5">
+           className="flex flex-col sm:flex-row sm:justify-between  justify-between items-center text-center p-5">
              <Link href={'/'}>
               <img className="w-auto h-12" src="/logo.png" alt="Logo" />
               </Link>
