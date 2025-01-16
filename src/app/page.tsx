@@ -7,7 +7,8 @@ import Link from 'next/link';
 export const dynamic = "force-dynamic";
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
-import { Clock } from 'lucide-react';
+import { Clock,Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import Head from 'next/head';  
 
@@ -34,6 +35,8 @@ export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [favItems, setFavItems] = useState<FavItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     AOS.init({
@@ -84,6 +87,12 @@ export default function Home() {
     fetchPostsAndFavs();
   }, []);
 
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
 
 
   return (
@@ -98,8 +107,34 @@ export default function Home() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
       
-      <header className="flex bg-green-600 justify-center items-center text-center p-5">
-        <img className='w-auto h-12' src='/logo.png' />
+      <header 
+      style={{
+        backgroundImage: "url('https://i.imgur.com/m9cwWY8.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+      className="flex bg-green-600 justify-between items-center text-center p-5">
+        <img 
+        
+        className='w-auto h-8' src='/logo.png' />
+        {/* Campo de pesquisa */}
+        <section className="p-4 flex justify-center items-center ">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Digite para buscar..."
+            className="p-2 rounded-l-md w-full max-w-md border-none focus:outline-none"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-green-700 text-white p-2 rounded-r-md"
+          >
+            <Search/>
+          </button>
+        </section>
+
+      {/* ...restante do código */}
       </header>
 
       {/* Exibição dos favoritos como slide contínuo */}
@@ -196,12 +231,12 @@ export default function Home() {
                                 className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px]"
                               />
                             )}
-                            <span className="absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
+                            <span className="w-2/4 sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
                               {post.category}
                             </span>
                           </div>
                           <div className="flex flex-col justify-center gap-5">
-                            <h2 className="sm:text-2xl font-semibold text-green-600">{post.title}</h2>
+                            <h2 className="ml-8 text-xs sm:ml-0 sm:text-2xl font-semibold text-green-600">{post.title}</h2>
                             
                             {post.content && (
                               <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
@@ -230,14 +265,14 @@ export default function Home() {
         </section>
 
         <section className="w-full p-4 flex items-center justify-center min-h-screen">
-  <div className="w-[1200px] flex flex-col">
+  <div className="w-full sm:w-[1200px] flex flex-col items-center justify-center">
     {loading ? (
       <p className="text-center text-white">Carregando...</p>
     ) : (
       <>
-        <div className="w-[1200px] flex justify-between mt-2">
+        <div className="w-full sm:w-[1200px] flex justify-between mt-2">
           <div className="flex-3">
-            <h1 className="font-bold text-green-600 text-4xl">NOSSOS VIDEOS</h1>
+            <h1 className="uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]">NOSSOS VIDEOS</h1>
           </div>
           <div className="flex-2">
             <p className="text-sm text-white mb-2">
@@ -246,14 +281,14 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="w-[1200px] flex items-center">
+        <div className="w-full sm:w-[1200px] flex items-center">
           <div className="h-[3px] bg-green-600 w-1/4"></div>
           <div className="h-px bg-green-300 w-3/4"></div>
         </div>
 
         {posts.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div className="flex sm:flex-row flex-col">
               {posts
                 .filter((post) => post.category && post.category.includes("VIDEOS")) // Filtragem por categoria
                 .slice(0, 2) // Limita a exibição a duas postagens
@@ -264,24 +299,24 @@ export default function Home() {
                     data-aos="fade-up"
                   >
                     <Link href={post.videoUrl ? post.videoUrl : "/"} passHref>
-  <div className="flex flex-col w-full p-4 text-white rounded bg-black">
-    <div className="relative">
-      {post.imageUrl && (
-        <img
-          src={post.imageUrl}
-          alt={post.title}
-          className="w-full h-[200px] sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
-        />
-      )}
-      <span className="absolute bottom-[30px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
-        {post.category}
-      </span>
-    </div>
-    <div className="ml-3">
-      <h2 className="text-xl font-bold">{post.title}</h2>
-    </div>
-  </div>
-</Link>
+                      <div className="flex flex-col w-full p-4 text-white rounded bg-black">
+                        <div className="relative">
+                          {post.imageUrl && (
+                            <img
+                              src={post.imageUrl}
+                              alt={post.title}
+                              className="w-3/4 h-auto sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
+                            />
+                          )}
+                          <span className="absolute bottom-[30px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
+                            {post.category}
+                          </span>
+                        </div>
+                        <div className="ml-3">
+                          <h2 className="text-xl font-bold">{post.title}</h2>
+                        </div>
+                      </div>
+                    </Link>
 
                   </div>
                 ))}
@@ -297,7 +332,7 @@ export default function Home() {
 
 
 
-      <footer className='flex justify-between bg-zinc-950 p-5  items-center'>
+      <footer className='flex flex-col sm:flex-row sm:justify-between bg-zinc-950 p-5  items-center'>
         <img className='w-[150px]  h-[25px] mr-5' src='/logo.png' />
         <div className='flex gap-20 my-5'>
           <Link href={'https://www.tiktok.com/@loudinhosofc/'}>

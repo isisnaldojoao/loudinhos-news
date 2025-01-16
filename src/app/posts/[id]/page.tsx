@@ -5,6 +5,8 @@ import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation'; // Importe o hook useParams
 import Link from 'next/link';
+import { Clock,Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import Head from 'next/head';  
 
@@ -24,6 +26,8 @@ export default function DetailPost() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
   
 
   useEffect(() => {
@@ -46,6 +50,8 @@ export default function DetailPost() {
               source:postData.source,
               category: postData.category || [],
             });
+
+            document.title = `${postData.title} - Blog`;
           } else {
             setError('Post não encontrado.');
           }
@@ -83,6 +89,13 @@ export default function DetailPost() {
     return <p>{error}</p>;
   }
 
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+  
+
   return (
     
 
@@ -99,11 +112,35 @@ export default function DetailPost() {
           <meta name="twitter:image" content={post.imageUrl} />
         </Head>
       )}
-      <header className="flex bg-green-600 justify-center items-center text-center p-5">
-        <Link href="/">
-          <img className='w-auto h-12' src='/logo.png' />
-        </Link>
-      </header>
+     <header 
+           style={{
+             backgroundImage: "url('https://i.imgur.com/m9cwWY8.png')",
+             backgroundSize: "cover",
+             backgroundPosition: "center",
+           }}
+           className="flex bg-green-600 justify-between items-center text-center p-5">
+             <img 
+             
+             className='w-auto h-8' src='/logo.png' />
+             {/* Campo de pesquisa */}
+             <section className="p-4 flex justify-center items-center ">
+               <input
+                 type="text"
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 placeholder="Digite para buscar..."
+                 className="p-2 rounded-l-md w-full max-w-md border-none focus:outline-none"
+               />
+               <button
+                 onClick={handleSearch}
+                 className="bg-green-700 text-white p-2 rounded-r-md"
+               >
+                 <Search/>
+               </button>
+             </section>
+     
+           {/* ...restante do código */}
+           </header>
       {post ? (
         <div className="flex flex-col post-details text-white justify-center items-center p-6 rounded-lg">
           <h1 className="text-3xl text-green-600 font-bold mb-4">{post.title}</h1>
@@ -161,7 +198,7 @@ export default function DetailPost() {
       ) : (
         <p>Post não encontrado.</p>
       )}
-      <footer className='flex justify-between bg-zinc-950 p-5  items-center'>
+      <footer className='flex flex-col sm:flex-row sm:justify-between bg-zinc-950 p-5  items-center'>
         <img className='w-[150px]  h-[25px] mr-5' src='/logo.png' />
         <div className='flex gap-20 my-5'>
           <Link href={'https://www.tiktok.com/@loudinhosofc/'}>
