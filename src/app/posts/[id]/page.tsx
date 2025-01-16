@@ -119,9 +119,9 @@ export default function DetailPost() {
              backgroundPosition: "center",
            }}
            className="flex bg-green-600 justify-between items-center text-center p-5">
-             <img 
-             
-             className='w-auto h-8' src='/logo.png' />
+             <Link href={'/'}>
+              <img className="w-auto h-12" src="/logo.png" alt="Logo" />
+              </Link>
              {/* Campo de pesquisa */}
              <section className="p-4 flex justify-center items-center ">
                <input
