@@ -120,7 +120,7 @@ export default function DetailPost() {
            }}
            className="flex flex-col sm:flex-row sm:justify-between  justify-between items-center text-center p-5">
              <Link href={'/'}>
-              <img className="w-auto h-8 md:h-12" src="/logo.png" alt="Logo" />
+              <img className="w-auto h-8 h-8" src="/logo.png" alt="Logo" />
               </Link>
              {/* Campo de pesquisa */}
              <section className="p-4 flex justify-center items-center ">
