@@ -214,6 +214,8 @@ function PostForm() {
                   <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
                   <option value="VALORANT">VALORANT</option>
                   <option value="VIDEOS">VIDEOS</option>
+                  <option value="VIDEOS">KINGS LEAGUE BRAZIL</option>
+                  <option value="VIDEOS">BRAWL STARS </option>
                 </select>
               </div>
 
