@@ -212,7 +212,7 @@ export default function Painel() {
                 <option value="FREE FIRE">FREE FIRE</option>
                 <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
                 <option value="VALORANT">VALORANT</option>
-                <option value="KINGS LEAGUE BRAZIL">KINGS LEAGUE BRAZIL</option>
+                <option value="KINGS LEAGUE">KINGS LEAGUE</option>
                 <option value="BRAWL STARS">BRAWL STARS </option>
               </select>
             </div>
