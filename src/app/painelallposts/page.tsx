@@ -12,6 +12,10 @@ import { AppSidebar } from "@/components/ui/app-sidebar";
 
 import { Trash,Pencil } from "lucide-react";
 
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const db = getFirestore();
 
 interface Post {
@@ -102,6 +106,8 @@ export default function Painel() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+
+    toast.success("Logout efetuado com sucesso!");
   };
 
   const deletePost = async (id: string) => {
@@ -109,6 +115,7 @@ export default function Painel() {
       const postRef = doc(db, 'posts', id);
       await deleteDoc(postRef);
       setPosts(posts.filter(post => post.id !== id));
+      toast.success("Postagem excluida com sucesso!");
     } catch (error) {
       console.error('Erro ao deletar post:', error);
     }

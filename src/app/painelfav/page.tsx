@@ -12,6 +12,10 @@ import { AppSidebar } from "@/components/ui/app-sidebar";
 
 import { Pencil } from "lucide-react";
 
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const db = getFirestore();
 
 interface FavItem {
@@ -71,6 +75,8 @@ export default function Painel() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+
+    toast.success("Logout efetuado com sucesso!");
   };
 
   const handleAddItem = async (favCollection: 'fav1' | 'fav2' | 'fav3') => {
@@ -213,7 +219,21 @@ export default function Painel() {
                 <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
                 <option value="VALORANT">VALORANT</option>
                 <option value="KINGS LEAGUE">KINGS LEAGUE</option>
-                <option value="BRAWL STARS">BRAWL STARS </option>
+                <option value="BRAWL STARS">BRAWL STARS</option>
+                <option value="COREANO">COREANO</option>
+                <option value="RENATO VICENTE">RENATO VICENTE</option>
+                <option value="DARLAN SOUZA">DARLAN SOUZA</option>
+                <option value="YAYAH">YAYAH</option>
+                <option value="CAROLINA VOLTAN">CAROLINA VOLTAN</option>
+                <option value="NAYU">NAYU</option>
+                <option value="GABEPEIXE">GABEPEIXE</option>
+                <option value="OCASTRIN">OCASTRIN</option>
+                <option value="BRABOX">BRABOX</option>
+                <option value="VINICIUS JR">VINICIUS JR</option>
+                <option value="CORINGA">CORINGA</option>
+                <option value="BABI">BABI</option>
+                <option value="CAIOX">CAIOX</option>
+                <option value="SKAR">SKAR</option>
               </select>
             </div>
 

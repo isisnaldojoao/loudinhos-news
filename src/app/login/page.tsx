@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';	
 import { auth } from '@/lib/firebaseConfig';
 export const dynamic = "force-dynamic";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login(){
     const [email, setEmail] = useState('');
@@ -16,6 +18,7 @@ export default function Login(){
         try {
             await signInWithEmailAndPassword(auth,email,password);
             router.push('/painel');
+            toast.success("Login Efetuado com sucesso!");
         }catch(error){
             console.log('Erro ao logar',error);
             alert('Falha no login.Email ou senha errados')

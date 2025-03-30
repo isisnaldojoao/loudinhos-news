@@ -10,6 +10,9 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const db = getFirestore();
 const storage = getStorage();
 
@@ -43,9 +46,12 @@ function PostForm() {
     if (postId) {
       setIsEditing(true);
       const fetchPost = async () => {
+        
         try {
           const docRef = doc(db, 'posts', postId);
           const docSnap = await getDoc(docRef);
+
+          
 
           if (docSnap.exists()) {
             const postData = docSnap.data();
@@ -68,6 +74,8 @@ function PostForm() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+
+    toast.success("Logout efetuado com sucesso!");
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +124,7 @@ function PostForm() {
         };
 
         console.log('Dados sendo salvos:', newPost);
-
+        toast.success("Postagem adicionada com sucesso!");
         const docRef = await addDoc(collection(db, 'posts'), newPost);
         console.log('Postagem criada com ID: ', docRef.id);
       }
@@ -216,6 +224,20 @@ function PostForm() {
                   <option value="VIDEOS">VIDEOS</option>
                   <option value="KINGS LEAGUE">KINGS LEAGUE</option>
                   <option value="BRAWL STARS">BRAWL STARS </option>
+                  <option value="COREANO">COREANO</option>
+                  <option value="RENATO VICENTE">RENATO VICENTE</option>
+                  <option value="DARLAN SOUZA">DARLAN SOUZA</option>
+                  <option value="YAYAH">YAYAH</option>
+                  <option value="CAROLINA VOLTAN">CAROLINA VOLTAN</option>
+                  <option value="NAYU">NAYU</option>
+                  <option value="GABEPEIXE">GABEPEIXE</option>
+                  <option value="OCASTRIN">OCASTRIN</option>
+                  <option value="BRABOX">BRABOX</option>
+                  <option value="VINICIUS JR">VINICIUS JR</option>
+                  <option value="CORINGA">CORINGA</option>
+                  <option value="BABI">BABI</option>
+                  <option value="CAIOX">CAIOX</option>
+                  <option value="SKAR">SKAR</option>
                 </select>
               </div>
 

@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings,CirclePlus,LogOut } from "lucide-react";
+import { Calendar, Home, Inbox, Search, Settings,CirclePlus,LogOut, Target } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,12 +10,16 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 // Menu items.
 const items = [
   {
     title: "Visitar site",
     url: "/",
     icon: Home,
+    target: "_blank",
   },
   {
     title: "Adicionar postagens",
@@ -53,7 +57,10 @@ export function AppSidebar({ userEmail, handleLogout }: AppSidebarProps) {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <a href={item.url}
+                    target={item.target ? "_blank" : "_self"} 
+                    rel={item.target ? "noopener noreferrer" : undefined}
+                    >
                       <item.icon />
                       <span>{item.title}</span>
                     </a>
