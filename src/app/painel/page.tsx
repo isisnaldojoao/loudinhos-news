@@ -16,6 +16,8 @@ import "react-toastify/dist/ReactToastify.css";
 const db = getFirestore();
 const storage = getStorage();
 
+import Editor from "../../components/editor/editor";
+
 function PostForm() {
   const [user, setUser] = useState<User | null>(null);
   const [title, setTitle] = useState('');
@@ -26,6 +28,8 @@ function PostForm() {
   const [videoUrl, setVideoUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [source, setSource] = useState('');
+  const [writtenFor,setWrittenFor] = useState('');
+  const [revisedFor, setRevisedFor] = useState('');
   const router = useRouter();
 
   const postId = useSearchParams()?.get('postId');
@@ -121,6 +125,8 @@ function PostForm() {
           createdAt: serverTimestamp(),
           author: user?.email || 'Usuário desconhecido',
           source,
+          writtenFor,
+          revisedFor
         };
 
         console.log('Dados sendo salvos:', newPost);
@@ -134,6 +140,8 @@ function PostForm() {
       setImageUrl('');
       setCategory('');
       setSource('');
+      setRevisedFor('');
+      setWrittenFor('');
       router.push('/painel');
     } catch (error) {
       console.error('Erro ao salvar postagem: ', error);
@@ -151,111 +159,137 @@ function PostForm() {
         <SidebarTrigger />
         <main className="w-full h-screen flex flex-col items-center">
           <div className="w-full h-screen flex flex-col items-center">
-            <form onSubmit={savePost} className="mt-6 w-full max-w-2xl">
-              <h2 className="w-full text-4xl rounded-lg mb-4 font-bold text-center">
-                {isEditing ? 'Editar Postagem' : 'Criar Postagem'}
-              </h2>
-              <div className="mb-4 w-full">
-                <label htmlFor="title" className="block text-left">Título</label>
+            <form onSubmit={savePost} className="mt-6 w-full max-w-2xl flex-col">
+              <div className='flex flex-col '>
+                <div className='flex'>
+                  <h2 className="w-full text-4xl rounded-lg mb-4 font-bold text-center ">
+                    {isEditing ? 'Editar Postagem' : 'Criar Postagem'}
+                  </h2>
+
+                </div>
+                
+                <div className='grid grid-cols-2 gap-4'>
+                <div className="mb-4 w-full">
+                  <label htmlFor="title" className="block text-left">Título</label>
+                  <input
+                    id="title"
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Digite o título"
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+                
+                <div className=" w-full">
+                  <label htmlFor="imageUrl" className="block text-left">URL da Imagem</label>
+                  <input
+                    id="imageUrl"
+                    type="text"
+                    value={imageUrl}
+                    onChange={handleImageUrlChange}
+                    placeholder="Cole o link da imagem"
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label htmlFor="source" className="block text-left">Fonte</label>
+                  <input
+                    id="source"
+                    type="text"
+                    value={source}
+                    onChange={(e) => setSource(e.target.value)}
+                    placeholder="Digite a fonte da imagem"
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label htmlFor="source" className="block text-left">Escrito por:</label>
+                  <input
+                    id="writtenFor"
+                    type="text"
+                    value={writtenFor}
+                    onChange={(e) => setWrittenFor(e.target.value)}
+                    placeholder="Digite a pessoa que revisou"
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label htmlFor="source" className="block text-left">Revisado por:</label>
+                  <input
+                    id="revisedFor"
+                    type="text"
+                    value={revisedFor}
+                    onChange={(e) => setRevisedFor(e.target.value)}
+                    placeholder="Digite a pessoa que revisou"
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div className="mb-4 w-full">
+                <label htmlFor="videoUrl" className="block text-left">Link do Vídeo (opcional)</label>
                 <input
-                  id="title"
+                  id="videoUrl"
                   type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Digite o título"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder="Cole o link do vídeo"
                   className="w-full p-2 border rounded"
                 />
+              </div>
+
+              <div>
+
+              </div>
+                  
+                </div>
+                <div className=" w-full">
+                  <label htmlFor="category" className="block text-left">Categoria</label>
+                  <select
+                    id="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    <option value="FREE FIRE">FREE FIRE</option>
+                    <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
+                    <option value="VALORANT">VALORANT</option>
+                    <option value="VIDEOS">VIDEOS</option>
+                    <option value="KINGS LEAGUE">KINGS LEAGUE</option>
+                    <option value="BRAWL STARS">BRAWL STARS </option>
+                    <option value="COREANO">COREANO</option>
+                    <option value="RENATO VICENTE">RENATO VICENTE</option>
+                    <option value="DARLAN SOUZA">DARLAN SOUZA</option>
+                    <option value="YAYAH">YAYAH</option>
+                    <option value="CAROLINA VOLTAN">CAROLINA VOLTAN</option>
+                    <option value="NAYU">NAYU</option>
+                    <option value="GABEPEIXE">GABEPEIXE</option>
+                    <option value="OCASTRIN">OCASTRIN</option>
+                    <option value="BRABOX">BRABOX</option>
+                    <option value="VINICIUS JR">VINICIUS JR</option>
+                    <option value="CORINGA">CORINGA</option>
+                    <option value="BABI">BABI</option>
+                    <option value="CAIOX">CAIOX</option>
+                    <option value="SKAR">SKAR</option>
+                  </select>
+                </div>
+              
+                <hr className='mt-5'/>
               </div>
               
-              <div className="mb-4 w-full">
-                <label htmlFor="imageUrl" className="block text-left">URL da Imagem (opcional)</label>
-                <input
-                  id="imageUrl"
-                  type="text"
-                  value={imageUrl}
-                  onChange={handleImageUrlChange}
-                  placeholder="Cole o link da imagem"
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-4 w-full">
-                <label htmlFor="source" className="block text-left">Fonte</label>
-                <input
-                  id="source"
-                  type="text"
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
-                  placeholder="Digite a fonte da imagem"
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-
-              <h1 className='font-bold'>Opções de video</h1>
-              <hr/>
-
-              <div className="mb-4 w-full">
-              <label htmlFor="videoUrl" className="block text-left">Link do Vídeo (opcional)</label>
-              <input
-                id="videoUrl"
-                type="text"
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="Cole o link do vídeo"
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-
-            </div>
-
-                <div className="mb-4 mt-2 w-full">
-                <label htmlFor="category" className="block text-left">Categoria</label>
-                <select
-                  id="category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="">Selecione uma categoria</option>
-                  <option value="FREE FIRE">FREE FIRE</option>
-                  <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
-                  <option value="VALORANT">VALORANT</option>
-                  <option value="VIDEOS">VIDEOS</option>
-                  <option value="KINGS LEAGUE">KINGS LEAGUE</option>
-                  <option value="BRAWL STARS">BRAWL STARS </option>
-                  <option value="COREANO">COREANO</option>
-                  <option value="RENATO VICENTE">RENATO VICENTE</option>
-                  <option value="DARLAN SOUZA">DARLAN SOUZA</option>
-                  <option value="YAYAH">YAYAH</option>
-                  <option value="CAROLINA VOLTAN">CAROLINA VOLTAN</option>
-                  <option value="NAYU">NAYU</option>
-                  <option value="GABEPEIXE">GABEPEIXE</option>
-                  <option value="OCASTRIN">OCASTRIN</option>
-                  <option value="BRABOX">BRABOX</option>
-                  <option value="VINICIUS JR">VINICIUS JR</option>
-                  <option value="CORINGA">CORINGA</option>
-                  <option value="BABI">BABI</option>
-                  <option value="CAIOX">CAIOX</option>
-                  <option value="SKAR">SKAR</option>
-                </select>
-              </div>
-
              
 
-            <hr/>
 
+            <div className="m-4 w-full">
+              <label htmlFor="content" className="block text-left mb-2"></label>
+              <Editor content={content} onChange={setContent} />
 
-              <div className="mb-4 w-full">
-                <label htmlFor="content" className="block text-left">Conteúdo</label>
-                <textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Digite o conteúdo"
-                  className="w-full h-[400px] p-2 border rounded"
-                />
-              </div>
+            </div>
+
               <button
                 type="submit"
                 className="w-full bg-blue-500 rounded-lg text-white py-2 hover:scale-105 transition duration-200 mb-4"

@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings,CirclePlus,LogOut, Target } from "lucide-react";
+import { Calendar, Home, Inbox, Search, Settings,CirclePlus,LogOut, Target,TrendingUp } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,11 @@ const items = [
     url: "/",
     icon: Home,
     target: "_blank",
+  },
+  {
+    title: "Analytics",
+    url: "/analytics",
+    icon: TrendingUp,
   },
   {
     title: "Adicionar postagens",

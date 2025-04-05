@@ -19,6 +19,8 @@ interface Post {
   author: string;
   source:string;
   category: string[];
+  writtenFor: string;
+  revisedFor: string;
 }
 
 export default function DetailPost() {
@@ -49,6 +51,8 @@ export default function DetailPost() {
               author: postData.author || 'Autor desconhecido', // Garantir que o campo imageUrl seja atribuído
               source:postData.source,
               category: postData.category || [],
+              writtenFor: postData.writtenFor || '',
+              revisedFor: postData.revisedFor || '',
             });
 
             document.title = `${postData.title} - Blog`;
@@ -192,6 +196,12 @@ export default function DetailPost() {
             )}
             {post.author && (
               <p className=" text-sm text-white mb-2">Por: <strong>{getAuthor(post.author)}</strong></p>
+            )}
+            {post.writtenFor && (
+              <p className=" text-sm text-white mb-2">Escrito: <strong>{post.writtenFor}</strong></p>
+            )}
+            {post.revisedFor && (
+              <p className=" text-sm text-white mb-2">Revisado por: <strong>{post.revisedFor}</strong></p>
             )}
           </div>
         </div>
