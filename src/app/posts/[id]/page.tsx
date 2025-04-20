@@ -93,12 +93,24 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
 
     return (
         <main className="w-full min-h-screen bg-black text-white">
+
           <Head>
+            {/* Meta tags Open Graph */}
             <meta property="og:title" content={post.title} />
             <meta property="og:description" content={post.content.slice(0, 150)} />
             <meta property="og:image" content={post.imageUrl} />
+            <meta property="og:image:width" content="800" />
+            <meta property="og:image:height" content="400" />
+            
+            {/* Meta tags Twitter */}
             <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:site" content="loudinhos.com.br" />
+            <meta name="twitter:title" content={post.title} />
+            <meta name="twitter:description" content={post.content.slice(0, 150)} />
             <meta name="twitter:image" content={post.imageUrl} />
+            
+            {/* Meta tags adicionais */}
+            <meta name="description" content={post.content.slice(0, 150)} />
           </Head>
             <header
                 style={{
