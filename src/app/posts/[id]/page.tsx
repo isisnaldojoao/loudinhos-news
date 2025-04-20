@@ -107,7 +107,7 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
             <meta name="twitter:site" content="loudinhos.com.br" />
             <meta name="twitter:title" content={post.title} />
             <meta name="twitter:description" content={post.content.slice(0, 150)} />
-            <meta name="twitter:image" content={post.imageUrl} />
+            <meta name="twitter:image" content={`${post.imageUrl}?${new Date().getTime()}`} />
             
             {/* Meta tags adicionais */}
             <meta name="description" content={post.content.slice(0, 150)} />
