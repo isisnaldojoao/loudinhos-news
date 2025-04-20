@@ -1,265 +1,219 @@
-'use-client';
-
-import React, { useEffect, useState } from 'react';
-import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import { useParams } from 'next/navigation'; // Importe o hook useParams
+import { db } from '@/lib/firebaseConfig';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Clock,Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-
-import Head from 'next/head'; 
-
-import { Metadata } from 'next'; // Importação do Metadata do Next.js
+import { Search } from 'lucide-react';
+import { format } from 'date-fns'; // Importando o format do date-fns
 
 interface Post {
-  id: string;
   title: string;
   content: string;
-  createdAt: { seconds: number } | null;
   imageUrl: string;
+  createdAt: { seconds: number } | null;
   author: string;
-  source:string;
+  source: string;
   category: string[];
   writtenFor: string;
   revisedFor: string;
 }
 
-type Props = {
-  params: { id: string };
-};
+interface Params {
+  params: {
+    id: string;
+  };
+}
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const docRef = doc(db, 'posts', params.id);
-  const docSnap = await getDoc(docRef);
+function getAuthor(auth: string) {
+  const authorName = auth.split('@')[0];
+  return authorName.charAt(0).toUpperCase() + authorName.slice(1);
+}
 
-  if (!docSnap.exists()) {
+function calculateTime(text: string, velocity = 200) {
+  const words = text.split(/\s+/).length;
+  return Math.ceil(words / velocity);
+}
+
+// Metadata dinâmico
+export async function generateMetadata({ params }: Params) {
+  // Aguarde a resolução do parâmetro 'params'
+  const { id } = await params; // Aguarde 'params'
+
+  const docRef = doc(db, 'posts', id);
+  const snapshot = await getDoc(docRef);
+
+  if (!snapshot.exists()) {
     return {
       title: 'Post não encontrado',
     };
   }
 
-  const post = docSnap.data();
+  const post = snapshot.data() as Post;
+  const processedContent = post.content.replace(/\n/g, '<br />'); // Processa conteúdo para garantir que quebras de linha sejam consistentes
 
   return {
     title: post.title,
-    description: post.content?.slice(0, 150) || '',
+    description: processedContent.slice(0, 150),
     openGraph: {
+      images: [post.imageUrl],
       title: post.title,
-      description: post.content?.slice(0, 150) || '',
-      images: [post.imageUrl || '/fallback.jpg'],
+      description: processedContent.slice(0, 150),
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.content?.slice(0, 150) || '',
-      images: [post.imageUrl || '/fallback.jpg'],
+      description: processedContent.slice(0, 150),
+      images: [post.imageUrl],
     },
   };
 }
 
+export default async function PostPage({ params }: Params) {
+  // Aguarde a resolução do parâmetro 'params'
+  const { id } = await params; // Aguarde 'params' aqui
 
+  const docRef = doc(db, 'posts', id);
+  const snapshot = await getDoc(docRef);
 
-export default function DetailPost() {
-  const params = useParams(); 
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const router = useRouter();
-  
+  if (!snapshot.exists()) return notFound();
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        if (params?.id && typeof params.id === 'string') { // Certifique-se de que o id está disponível
-          const postRef = doc(db, 'posts', params.id); // Busca o post pelo ID
-          const postSnapshot = await getDoc(postRef);
+  const post = snapshot.data() as Post;
 
-          if (postSnapshot.exists()) {
-            const postData = postSnapshot.data();
-            console.log('Dados do post:', postData);
-            setPost({
-              id: postSnapshot.id,
-              title: postData.title,
-              content: postData.content,
-              createdAt: postData.createdAt || null,
-              imageUrl: postData.imageUrl || '',
-              author: postData.author || 'Autor desconhecido', // Garantir que o campo imageUrl seja atribuído
-              source:postData.source,
-              category: postData.category || [],
-              writtenFor: postData.writtenFor || '',
-              revisedFor: postData.revisedFor || '',
-            });
+  // Formatando o conteúdo de forma consistente para o servidor e cliente
+  const formattedContent = post.content.replace(/\n/g, '<br />');
 
-            document.title = `${postData.title} - Blog`;
-          } else {
-            setError('Post não encontrado.');
-          }
-        } else {
-          setError('ID do post não fornecido.');
-        }
-      } catch (err) {
-        setError('Erro ao buscar o post.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPost();
-  }, [params]);
-
-  function getAuthor(auth: string){
-    const author = auth;
-    const authorName = author.split("@")[0];
-    return authorName.charAt(0).toUpperCase() + authorName.slice(1);
-  }
-
-  function calculateTime(text:String,velocity = 200){
-    const textForNews = text.split(/\s+/).length; 
-    const timeMinutes = textForNews / velocity; 
-    return Math.ceil(timeMinutes);
-  }
-
-  if (loading) {
-    return <p>Carregando...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  const handleSearch = () => {
-    if (searchTerm.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
-    }
-  };
-  
-
-  
+  // Formatando a data de forma consistente usando date-fns
+  const formattedDate = post.createdAt ? format(new Date(post.createdAt.seconds * 1000), 'dd/MM/yyyy') : '';
 
   return (
-    
+    <main className="w-full min-h-screen bg-black text-white">
+      <header
+        style={{
+          backgroundImage: "url('https://i.imgur.com/m9cwWY8.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+        className="flex flex-col sm:flex-row sm:justify-between justify-between items-center text-center p-5"
+      >
+        <Link href="/">
+          <img className="w-auto h-8" src="/logo.png" alt="Logo" />
+        </Link>
 
-    <main className="w-full min-h-screen bg-black">
-      {post && (
-        <Head>
-          <title>{post.title}</title>
-          <meta name="description" content={`post.content`} />
-          <meta name="keywords" content="loud, loudgg, loudlol, loudvalorant" />
-          <meta property="og:title" content={`post.title`} />
-          <meta property="og:description" content={`post.content`} />
-          <meta property="og:image" content={`post.imageUrl`} />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content={`post.imageUrl`} />
-        </Head>
-      )}
-     <header 
-           style={{
-             backgroundImage: "url('https://i.imgur.com/m9cwWY8.png')",
-             backgroundSize: "cover",
-             backgroundPosition: "center",
-           }}
-           className="flex flex-col sm:flex-row sm:justify-between  justify-between items-center text-center p-5">
-             <Link href={'/'}>
-              <img className="w-auto h-8 h-8" src="/logo.png" alt="Logo" />
-              </Link>
-             {/* Campo de pesquisa */}
-             <section className="p-4 flex justify-center items-center ">
-               <input
-                 type="text"
-                 value={searchTerm}
-                 onChange={(e) => setSearchTerm(e.target.value)}
-                 placeholder="Digite para buscar..."
-                 className="p-2 rounded-l-md w-full max-w-md border-none focus:outline-none"
-               />
-               <button
-                 onClick={handleSearch}
-                 className="bg-green-700 text-white p-2 rounded-r-md"
-               >
-                 <Search/>
-               </button>
-             </section>
-     
-           {/* ...restante do código */}
-           </header>
-      {post ? (
-        <div className="flex flex-col post-details text-white justify-center items-center p-6 rounded-lg">
-          <h1 className="text-3xl text-green-600 font-bold mb-4">{post.title}</h1>
-          {post.imageUrl && (
-            <img
-              src={post.imageUrl}
-              alt={post.title}
-              className="w-[700px] h-auto rounded mt-4"
+        <section className="p-4 flex justify-center items-center">
+          <form action="/search" method="GET" className="flex">
+            <input
+              type="text"
+              name="q"
+              placeholder="Digite para buscar..."
+              className="p-2 rounded-l-md w-full max-w-md border-none focus:outline-none text-black"
             />
-          )}
-          {post.source && (
-            <p>Reprodução: <strong>{post.source}</strong> </p>
-          )}
-          <div className='w-full flex flex-col justify-between mt-2'>
-            
-            <div className='w-full flex justify-between mt-2'>
-              <div className='flex-3'>
-                  <h1 className='font-bold'>{post.category}</h1>
-              </div>
-              <div className='flex-2'>
-                {post.content && (
-                  <p className=" text-sm text-white mb-2"> <strong>
-                  {calculateTime(post.content)}
-                  {calculateTime(post.content) > 1 ? ' minutos' : ' minuto'} de leitura
-                  </strong></p>
-                )}
-              </div>
-            </div>
+            <button
+              type="submit"
+              className="bg-green-700 text-white p-2 rounded-r-md"
+            >
+              <Search />
+            </button>
+          </form>
+        </section>
+      </header>
 
-            <div className='w-full flex items-center'>
-              <div className="h-[3px] bg-green-600 w-1/4"></div> 
-              <div className="h-px bg-green-300 w-3/4"></div> 
-            </div>
+      <div className="flex flex-col post-details text-white justify-center items-center p-6 rounded-lg">
+        <h1 className="text-3xl text-green-600 font-bold mb-4">{post.title}</h1>
 
-          </div>
-          
-          <p
-            className="content"
-            dangerouslySetInnerHTML={{
-              __html: post.content.replace(/\n/g, '<br />'), 
-            }}
+        {post.imageUrl && (
+          <img
+            src={post.imageUrl}
+            alt={post.title}
+            className="w-[700px] h-auto rounded mt-4"
           />
-          <div className='w-full flex flex-col justify-start'>
-            {post.createdAt && (
-              <p className="text-sm text-white">
-                {' '}
-                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-              </p>
-            )}
-            {post.author && (
-              <p className=" text-sm text-white mb-2">Por: <strong>{getAuthor(post.author)}</strong></p>
-            )}
-            {post.writtenFor && (
-              <p className=" text-sm text-white mb-2">Escrito: <strong>{post.writtenFor}</strong></p>
-            )}
-            {post.revisedFor && (
-              <p className=" text-sm text-white mb-2">Revisado por: <strong>{post.revisedFor}</strong></p>
-            )}
+        )}
+
+        {post.source && (
+          <p>
+            Reprodução: <strong>{post.source}</strong>
+          </p>
+        )}
+
+        <div className="w-full flex flex-col justify-between mt-2">
+          <div className="w-full flex justify-between mt-2">
+            <div className="flex-3">
+              <h1 className="font-bold">
+                {Array.isArray(post.category) ? post.category.join(', ') : post.category}
+              </h1>
+            </div>
+            <div className="flex-2">
+              {post.content && (
+                <p className="text-sm text-white mb-2">
+                  <strong>
+                    {calculateTime(post.content)}{' '}
+                    {calculateTime(post.content) > 1 ? 'minutos' : 'minuto'} de leitura
+                  </strong>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full flex items-center">
+            <div className="h-[3px] bg-green-600 w-1/4"></div>
+            <div className="h-px bg-green-300 w-3/4"></div>
           </div>
         </div>
-      ) : (
-        <p>Post não encontrado.</p>
-      )}
-      <footer className='flex flex-col sm:flex-row sm:justify-between bg-zinc-950 p-5  items-center'>
-        <img className='w-[150px]  h-[25px] mr-5' src='/logo.png' />
-        <div className='flex gap-20 my-5'>
-          <Link href={'https://www.tiktok.com/@loudinhosofc/'}>
-            <img className='bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600' src='/tiktok.svg'/>
+
+        {/* Conteúdo formatado diretamente do servidor */}
+        <div
+          className="content mt-4 leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: formattedContent,
+          }}
+        />
+
+        <div className="w-full flex flex-col justify-start mt-6">
+          {post.createdAt && (
+            <p className="text-sm text-white">
+              {formattedDate}
+            </p>
+          )}
+          {post.author && (
+            <p className="text-sm text-white mb-2">
+              Por: <strong>{getAuthor(post.author)}</strong>
+            </p>
+          )}
+          {post.writtenFor && (
+            <p className="text-sm text-white mb-2">
+              Escrito: <strong>{post.writtenFor}</strong>
+            </p>
+          )}
+          {post.revisedFor && (
+            <p className="text-sm text-white mb-2">
+              Revisado por: <strong>{post.revisedFor}</strong>
+            </p>
+          )}
+        </div>
+      </div>
+
+      <footer className="flex flex-col sm:flex-row sm:justify-between bg-zinc-950 p-5 items-center">
+        <img className="w-[150px] h-[25px] mr-5" src="/logo.png" alt="Logo" />
+        <div className="flex gap-20 my-5">
+          <Link href="https://www.tiktok.com/@loudinhosofc/">
+            <img
+              className="bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600"
+              src="/tiktok.svg"
+              alt="TikTok"
+            />
           </Link>
-          <Link href={'https://www.instagram.com/loudinhos/'}>
-            <img className='bg-zinc-900 rounded-full p-4 cursor-pointer hover:bg-green-600' src='/instagram.svg' />
+          <Link href="https://www.instagram.com/loudinhos/">
+            <img
+              className="bg-zinc-900 rounded-full p-4 cursor-pointer hover:bg-green-600"
+              src="/instagram.svg"
+              alt="Instagram"
+            />
           </Link>
-          <Link href={'https://x.com/loudinhos/'}>
-            <img className='bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600' src='/twitter-x.svg'/>
+          <Link href="https://x.com/loudinhos/">
+            <img
+              className="bg-zinc-900 rounded-full p-5 cursor-pointer hover:bg-green-600"
+              src="/twitter-x.svg"
+              alt="X"
+            />
           </Link>
-          
         </div>
       </footer>
     </main>
