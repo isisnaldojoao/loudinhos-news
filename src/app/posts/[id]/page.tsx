@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { format } from 'date-fns';
+import Head from 'next/head';
+
 
 interface Post {
     title: string;
@@ -48,31 +50,27 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
 
   const post = snapshot.data() as Post;
   const processedContent = post.content.replace(/\n/g, '<br />');
-  
+
   return {
     title: post.title,
     description: processedContent.slice(0, 150),
     openGraph: {
-      images: [{
-        url: post.imageUrl,
-        width: 800,
-        height: 400,
-        type: 'image/jpeg'
-      }],
-      title: post.title,
-      description: processedContent.slice(0, 150),
-      'og:image:alt': post.title,
+      'og:url': `https://${process.env.NEXT_PUBLIC_DOMAIN}/post/${id}`,
+      'og:title': post.title,
+      'og:description': processedContent.slice(0, 150),
+      'og:image': post.imageUrl,
       'og:image:width': '800',
-      'og:image:height': '400'
+      'og:image:height': '400',
+      'og:image:alt': post.title,
+      'og:image:type': 'image/jpeg',
+      'cache-control': 'public, max-age=31536000'
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@seusite',
       title: post.title,
       description: processedContent.slice(0, 150),
-      images: [{
-        url: post.imageUrl,
-        alt: post.title
-      }]
+      image: post.imageUrl
     }
   };
 }
@@ -95,6 +93,13 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
 
     return (
         <main className="w-full min-h-screen bg-black text-white">
+          <Head>
+            <meta property="og:title" content={post.title} />
+            <meta property="og:description" content={post.content.slice(0, 150)} />
+            <meta property="og:image" content={post.imageUrl} />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:image" content={post.imageUrl} />
+          </Head>
             <header
                 style={{
                     backgroundImage: "url('https://i.imgur.com/m9cwWY8.png')",
