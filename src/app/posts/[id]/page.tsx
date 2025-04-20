@@ -36,35 +36,32 @@ function calculateTime(text: string, velocity = 200) {
 
 // Função para gerar metadados dinâmicos
 export async function generateMetadata({ params }: { params: Promise<Params> }) {
-    const { id } = await params;
-    const docRef = doc(db, 'posts', id);
-    const snapshot = await getDoc(docRef);
+  const { id } = await params;
+  const docRef = doc(db, 'posts', id);
+  const snapshot = await getDoc(docRef);
+  
+  if (!snapshot.exists()) return null;
 
-    if (!snapshot.exists()) {
-        return {
-            title: 'Post não encontrado',
-        };
-    }
+  const post = snapshot.data() as Post;
+  const imageUrl = post.imageUrl.startsWith('http') ? 
+    post.imageUrl : `https://${process.env.NEXT_PUBLIC_DOMAIN}${post.imageUrl}`;
 
-    const post = snapshot.data() as Post;
-    const processedContent = post.content.replace(/\n/g, '<br />');
-
-    return {
-        title: post.title,
-        description: processedContent.slice(0, 150),
-        openGraph: {
-            images: [post.imageUrl],
-            title: post.title,
-            description: processedContent.slice(0, 150),
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: post.title,
-            description: processedContent.slice(0, 150),
-            images: [post.imageUrl],
-        },
-    };
+  return {
+    title: post.title,
+    openGraph: {
+      images: [{ url: imageUrl }],
+      title: post.title,
+      description: post.content.slice(0, 150),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.content.slice(0, 150),
+      images: [{ url: imageUrl }]
+    },
+  };
 }
+        
 
 // Componente principal da página de detalhes do post
 export default async function PostPage({ params }: { params: Promise<Params> }) {
