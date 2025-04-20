@@ -29,6 +29,35 @@ type Props = {
   params: { id: string };
 };
 
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const docRef = doc(db, 'posts', params.id);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return {
+      title: 'Post não encontrado',
+    };
+  }
+
+  const post = docSnap.data();
+
+  return {
+    title: post.title,
+    description: post.content?.slice(0, 150) || '',
+    openGraph: {
+      title: post.title,
+      description: post.content?.slice(0, 150) || '',
+      images: [post.imageUrl || '/fallback.jpg'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.content?.slice(0, 150) || '',
+      images: [post.imageUrl || '/fallback.jpg'],
+    },
+  };
+}
+
 
 
 export default function DetailPost() {
