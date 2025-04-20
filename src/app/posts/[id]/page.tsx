@@ -38,47 +38,46 @@ function calculateTime(text: string, velocity = 200) {
 }
 
 // Função para gerar metadados dinâmicos
-export async function generateMetadata({ params }: { params: Params }) {
-  const { id } = params;
+export async function generateMetadata({ params }: { params: Promise<Params> }) {
+  const { id } = await params;
   const docRef = doc(db, 'posts', id);
   const snapshot = await getDoc(docRef);
-
+  
   if (!snapshot.exists()) {
     return {
       title: 'Post não encontrado',
     };
   }
+ 
 
   const post = snapshot.data() as Post;
-  const processedContent = post.content.replace(/\n/g, ' '); // para description
+  const processedContent = post.content.replace(/\n/g, '<br />');
 
   return {
     title: post.title,
     description: processedContent.slice(0, 150),
     openGraph: {
-      url: `https://${process.env.NEXT_PUBLIC_DOMAIN}/post/${id}`,
-      title: post.title,
-      description: processedContent.slice(0, 150),
-      images: [
-        {
-          url: post.imageUrl,
-          width: 800,
-          height: 400,
-          alt: post.title,
-          type: 'image/jpeg',
-        },
-      ],
+      'og:url': `https://${process.env.NEXT_PUBLIC_DOMAIN}/post/${id}`,
+      'og:title': post.title,
+      'og:description': processedContent.slice(0, 150),
+      'og:image': post.imageUrl,
+      'og:image:width': '800',
+      'og:image:height': '400',
+      'og:image:alt': post.title,
+      'og:image:type': 'image/jpeg',
+      'cache-control': 'public, max-age=31536000'
     },
     twitter: {
       card: 'summary_large_image',
-      site: 'loudinhos.com.br',
+      site: '@seusite',
       title: post.title,
       description: processedContent.slice(0, 150),
-      images: [post.imageUrl],
+      image: post.imageUrl
     },
+    
+    
   };
 }
-
 
 // Componente principal da página de detalhes do post
 export default async function PostPage({ params }: { params: Promise<Params> }) {
@@ -151,8 +150,13 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
             <div className="flex flex-col post-details text-white justify-center items-center p-6 rounded-lg">
                 <h1 className="text-3xl text-green-600 font-bold mb-4">{post.title}</h1>
                 
-                {post.imageUrl && post.imageUrl.trim() !== '' && (
-                  <img src={post.imageUrl} alt={post.title} />
+                {post.imageUrl && (
+                  
+                    <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-[700px] h-auto rounded mt-4"
+                    />
                 )}
 
                 {post.source && (
