@@ -40,28 +40,42 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
   const docRef = doc(db, 'posts', id);
   const snapshot = await getDoc(docRef);
   
-  if (!snapshot.exists()) return null;
+  if (!snapshot.exists()) {
+    return {
+      title: 'Post não encontrado',
+    };
+  }
 
   const post = snapshot.data() as Post;
-  const imageUrl = post.imageUrl.startsWith('http') ? 
-    post.imageUrl : `https://${process.env.NEXT_PUBLIC_DOMAIN}${post.imageUrl}`;
-
+  const processedContent = post.content.replace(/\n/g, '<br />');
+  
   return {
     title: post.title,
+    description: processedContent.slice(0, 150),
     openGraph: {
-      images: [{ url: imageUrl }],
+      images: [{
+        url: post.imageUrl,
+        width: 800,
+        height: 400,
+        type: 'image/jpeg'
+      }],
       title: post.title,
-      description: post.content.slice(0, 150),
+      description: processedContent.slice(0, 150),
+      'og:image:alt': post.title,
+      'og:image:width': '800',
+      'og:image:height': '400'
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.content.slice(0, 150),
-      images: [{ url: imageUrl }]
-    },
+      description: processedContent.slice(0, 150),
+      images: [{
+        url: post.imageUrl,
+        alt: post.title
+      }]
+    }
   };
 }
-        
 
 // Componente principal da página de detalhes do post
 export default async function PostPage({ params }: { params: Promise<Params> }) {
