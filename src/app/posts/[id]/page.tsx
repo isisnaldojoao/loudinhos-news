@@ -36,7 +36,7 @@ function calculateTime(text: string, velocity = 200) {
 // Metadata dinâmico
 export async function generateMetadata({ params }: Params) {
   // Aguarde a resolução do parâmetro 'params'
-  const { id } = await params; // Aguarde 'params'
+  const { id } =  params; // Aguarde 'params'
 
   const docRef = doc(db, 'posts', id);
   const snapshot = await getDoc(docRef);
