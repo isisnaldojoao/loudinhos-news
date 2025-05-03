@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { format } from 'date-fns';
 import Head from 'next/head';
-import type { Metadata } from 'next';	
+import { Metadata } from 'next';	
 
 
 interface Post {
@@ -48,6 +48,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       return {
         title: 'Post não encontrado',
         description: 'Este post não foi encontrado.',
+        robots: {
+          index: false,
+          follow: false,
+        },
       };
     }
   
@@ -57,9 +61,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     return {
       title: post.title,
       description,
+      alternates: {
+        canonical: `/posts/${id}`,
+      },
       openGraph: {
         title: post.title,
         description,
+        url: `/posts/${id}`,
+        siteName: 'Loudinhos News',
         images: [
           {
             url: post.imageUrl,
@@ -68,6 +77,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
             alt: post.title,
           },
         ],
+        type: 'article',
       },
       twitter: {
         card: 'summary_large_image',
