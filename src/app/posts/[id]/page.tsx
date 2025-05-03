@@ -6,9 +6,11 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { format } from 'date-fns';
 import Head from 'next/head';
-import { Metadata } from 'next';	
+import type { Metadata, ResolvingMetadata} from 'next';	
 
-
+type Props ={
+    params: Promise<{id: string}>;
+}
 interface Post {
     title: string;
     content: string;
@@ -39,8 +41,10 @@ function calculateTime(text: string, velocity = 200) {
 }
 
 // Função para gerar metadados dinâmicos
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-    const { id } = params;
+export async function generateMetadata({ params }: Props,
+    parent: ResolvingMetadata
+  ): Promise<Metadata> {
+    const { id } = await params;
     const docRef = doc(db, 'posts', id);
     const snapshot = await getDoc(docRef);
   
