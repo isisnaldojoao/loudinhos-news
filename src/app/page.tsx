@@ -20,6 +20,7 @@ interface Post {
   imageUrl: string;
   category: string[];
   videoUrl:string;
+  slug:string
 }
 
 interface FavItem {

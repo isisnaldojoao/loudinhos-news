@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { format } from 'date-fns';
 import Head from 'next/head';
+import type { Metadata } from 'next';	
 
 
 interface Post {
@@ -38,46 +39,44 @@ function calculateTime(text: string, velocity = 200) {
 }
 
 // Função para gerar metadados dinâmicos
-export async function generateMetadata({ params }: { params: Promise<Params> }) {
-  const { id } = await params;
-  const docRef = doc(db, 'posts', id);
-  const snapshot = await getDoc(docRef);
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+    const { id } = params;
+    const docRef = doc(db, 'posts', id);
+    const snapshot = await getDoc(docRef);
   
-  if (!snapshot.exists()) {
+    if (!snapshot.exists()) {
+      return {
+        title: 'Post não encontrado',
+        description: 'Este post não foi encontrado.',
+      };
+    }
+  
+    const post = snapshot.data() as Post;
+    const description = post.content.slice(0, 150);
+  
     return {
-      title: 'Post não encontrado',
+      title: post.title,
+      description,
+      openGraph: {
+        title: post.title,
+        description,
+        images: [
+          {
+            url: post.imageUrl,
+            width: 800,
+            height: 400,
+            alt: post.title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description,
+        images: [post.imageUrl],
+      },
     };
   }
- 
-
-  const post = snapshot.data() as Post;
-  const processedContent = post.content.replace(/\n/g, '<br />');
-
-  return {
-    title: post.title,
-    description: processedContent.slice(0, 150),
-    openGraph: {
-      'og:url': `https://${process.env.NEXT_PUBLIC_DOMAIN}/post/${id}`,
-      'og:title': post.title,
-      'og:description': processedContent.slice(0, 150),
-      'og:image': post.imageUrl,
-      'og:image:width': '800',
-      'og:image:height': '400',
-      'og:image:alt': post.title,
-      'og:image:type': 'image/jpeg',
-      'cache-control': 'public, max-age=31536000'
-    },
-    twitter: {
-      card: 'summary_large_image',
-      site: '@seusite',
-      title: post.title,
-      description: processedContent.slice(0, 150),
-      image: post.imageUrl
-    },
-    
-    
-  };
-}
 
 // Componente principal da página de detalhes do post
 export default async function PostPage({ params }: { params: Promise<Params> }) {
@@ -104,6 +103,7 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
             <meta property="og:title" content={post.title} />
             <meta property="og:description" content={post.content.slice(0, 150)} />
             <meta property="og:image" content={post.imageUrl} />
+
             
             <meta property="og:image:width" content="800" />
             <meta property="og:image:height" content="400" />
