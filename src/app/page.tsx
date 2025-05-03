@@ -226,7 +226,7 @@ export default function Home() {
                   className="flex flex-col w-full md:w-[1200px] post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
                   data-aos="fade-up"
                 >
-                  <Link className="flex" href={`/posts/${post.id}`}>
+                  <Link className="flex" href={`/posts/${post.id}?v=1`}>
                     <div className="relative">
                       {post.imageUrl && (
                         <img
