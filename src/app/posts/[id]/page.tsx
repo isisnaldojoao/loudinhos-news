@@ -87,7 +87,14 @@ export async function generateMetadata({ params }: Props,
         card: 'summary_large_image',
         title: post.title,
         description,
-        images: [post.imageUrl],
+        images: [
+            {
+              url: post.imageUrl,
+              width: 800,
+              height: 400,
+              alt: post.title,
+            },
+          ],
       },
     };
   }
