@@ -139,7 +139,7 @@ export default function Home() {
       </header>
 
       {/* Exibição dos favoritos como slide contínuo */}
-      <section className="p-4 flex items-center justify-center" data-aos="fade-down">
+      <section className="p-4 flex items-center justify-center" data-aos="fade-up">
         <div className="flex flex-col md:flex-row">
           <div className="relative w-full md:w-[800px] h-[533px] m-1">
             <Link href={favItems.length > 0 ? favItems[0]?.url : '/'}>
