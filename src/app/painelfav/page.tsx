@@ -220,6 +220,7 @@ export default function Painel() {
                 <option value="VALORANT">VALORANT</option>
                 <option value="KINGS LEAGUE">KINGS LEAGUE</option>
                 <option value="BRAWL STARS">BRAWL STARS</option>
+                <option value="RAINBOW SIX">RAINBOW SIX</option>
                 <option value="COREANO">COREANO</option>
                 <option value="RENATO VICENTE">RENATO VICENTE</option>
                 <option value="DARLAN SOUZA">DARLAN SOUZA</option>
