@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { db } from '../lib/firebaseConfig';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 import { Clock,Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
 
 import Head from 'next/head';  
 
@@ -32,11 +33,18 @@ interface FavItem {
   videoUrl:string;
 }
 
+
+
+
+
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [favItems, setFavItems] = useState<FavItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // Hook adicionado fora do return
+  const postsPerPage = 2; // Hook adicionado fora do return
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -94,6 +102,41 @@ export default function Home() {
     }
   };
 
+    // Memoriza o filtro para não recalcular em toda renderização
+  const filteredPosts = useMemo(() => 
+    posts.filter(post => post.category && !post.category.includes('VIDEOS')), 
+    [posts]
+  );
+
+  const totalPages = useMemo(() => Math.ceil(filteredPosts.length / postsPerPage), [filteredPosts.length]);
+
+  // Paginação com useMemo
+  const currentPosts = useMemo(() => {
+    const start = (currentPage - 1) * postsPerPage;
+    return filteredPosts.slice(start, start + postsPerPage);
+  }, [currentPage, filteredPosts]);
+
+  // Função para páginas visíveis
+  const getVisiblePages = () => {
+    const maxPagesToShow = 3;
+    const pages = [];
+    let startPage = currentPage;
+    if (currentPage + maxPagesToShow - 1 > totalPages) {
+      startPage = Math.max(1, totalPages - maxPagesToShow + 1);
+    }
+    for (let i = startPage; i < startPage + maxPagesToShow && i <= totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  // Reseta a página ao mudar o filtro ou busca (opcional)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  if (loading) return <p className="text-center text-white">Carregando...</p>;
+  //if (error) return <p className="text-center text-red-500">{error}</p>;
 
 
   return (
@@ -205,181 +248,277 @@ export default function Home() {
 
       {/* Exibição das últimas postagens */}
       <section className="p-4 flex flex-col items-center justify-center">
-  {loading ? (
-    <p className="text-center text-white">Carregando...</p>
-  ) : (
-    <>
-      <h1 className="uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]">
-        Confiram nossas últimas postagens
-      </h1>
+            {loading ? (
+              <p className="text-center text-white">Carregando...</p>
+            ) : (
+              <>
+                <h1 className="uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]">
+                  Confiram nossas últimas postagens
+                </h1>
 
-      {/* Versão para Desktop */}
-      <div className="hidden md:block">
-        {posts.length > 0 ? (
-          <>
-            {posts
-              .filter(post => post.category && !post.category.includes("VIDEOS")) // Verifica se "category" existe e se não é "VIDEOS"
-              .slice(0, 2) // Limita a 2 postagens
-              .map((post) => (
-                <div
-                  key={post.id}
-                  className="flex flex-col w-full md:w-[1200px] post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
-                  data-aos="fade-up"
-                >
-                  <Link className="flex" href={`/posts/${post.id}?v=1`}>
-                    <div className="relative">
-                      {post.imageUrl && (
-                        <img
-                          src={post.imageUrl}
-                          alt={post.title}
-                          className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px]"
-                        />
-                      )}
-                      <span className="w-[100px]/4 sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
-                        {post.category}
-                      </span>
-                    </div>
-                    <div className="flex flex-col justify-center gap-5">
-                      <h2 className="ml-8 text-xs sm:ml-0 sm:text-2xl font-semibold text-green-600">
-                        {post.title}
-                      </h2>
+                {/* Versão para Desktop */}
+                <div className="hidden md:block">
+                  {currentPosts.length > 0 ? (
+                    currentPosts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="flex flex-col w-full md:w-[1200px] post mb-4 p-4 text-white rounded bg-black border-green-600 border-2"
+                        data-aos="fade-up"
+                      >
+                        <Link className="flex" href={`/posts/${post.id}?v=1`}>
+                          <div className="relative">
+                            {post.imageUrl && (
+                              <img
+                                src={post.imageUrl}
+                                alt={post.title}
+                                className="w-[100px] h-[80px] rounded m-5 sm:min-w-[250px] sm:h-[150px] sm:w-max-[250px]"
+                              />
+                            )}
+                            <span className="w-[100px]/4 sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-white border-b-2 border-green-600 m-[30px]">
+                              {post.category}
+                            </span>
+                          </div>
+                          <div className="flex flex-col justify-center gap-5">
+                            <h2 className="ml-8 text-xs sm:ml-0 sm:text-2xl font-semibold text-green-600">
+                              {post.title}
+                            </h2>
 
-                      {post.content && (
-                        <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
-                          {post.content}
-                        </p>
-                      )}
+                            {post.content && (
+                              <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
+                                {post.content}
+                              </p>
+                            )}
 
-                      <div className="flex gap-2 items-center">
-                        <p className="flex gap-2 items-center text-sm">
-                          <Clock />{' '}
-                          {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-                        </p>
+                            <div className="flex gap-2 items-center">
+                              <p className="flex gap-2 items-center text-sm">
+                                <Clock />{" "}
+                                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
                       </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-white">Nenhuma postagem encontrada.</p>
+                  )}
                     </div>
-                  </Link>
-                </div>
-              ))}
-          </>
-        ) : (
-          <p className="text-center text-white">Nenhuma postagem encontrada.</p>
-        )}
-      </div>
 
-      {/* Versão para Mobile */}
-      <div className="block md:hidden">
-        {posts.length > 0 ? (
-          <>
-            {posts
-              .filter(post => post.category && !post.category.includes("VIDEOS")) // Verifica se "category" existe e se não é "VIDEOS"
-              .slice(0, 2) // Limita a 2 postagens
-              .map((post) => (
-                <div
-                  key={post.id}
-                  className="flex flex-col w-full post mb-4 p-4 text-white rounded bg-black border-green-500 border"
-                  data-aos="fade-up"
-                >
-                  <Link className="flex flex-col" href={`/posts/${post.id}`}>
-                    {post.imageUrl && (
-                      <img
-                        src={post.imageUrl}
-                        alt={post.title}
-                        className="w-full h-[150px] object-cover rounded mb-4"
-                      />
-                    )}
-                    <h2 className="text-lg font-semibold text-green-500 mb-2">
-                      {post.title}
-                    </h2>
-                    {post.content && (
-                      <p className="text-sm text-gray-300 line-clamp-2">
-                        {post.content}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between mt-4">
-                      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
-                        <span className="w-full sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-green-600 ">
-                          {post.category}
-                        </span>
-                      </p>
+                  {/* Paginação Desktop */}
+                <section className="hidden md:block p-4 flex flex-col items-center justify-center">
+                {currentPosts.length > 0 ? (
+                  <>
+                    {/* 2) Paginação, fora do map */}
+                    <div className="flex justify-center items-center space-x-2 mt-6 text-white">
+                      <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1 border rounded ${
+                          currentPage === 1
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:bg-green-700'
+                        }`}
+                      >
+                        Anterior
+                      </button>
+
+                      {getVisiblePages().map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-3 py-1 border rounded ${
+                            page === currentPage ? 'bg-green-700' : 'hover:bg-green-700'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                        }
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1 border rounded ${
+                          currentPage === totalPages
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:bg-green-700'
+                        }`}
+                      >
+                        Próxima
+                      </button>
                     </div>
-                  </Link>
-                </div>
-              ))}
-          </>
-        ) : (
-          <p className="text-center text-white">Nenhuma postagem encontrada.</p>
-        )}
-      </div>
-    </>
-  )}
-</section>
+                  </>
+                ) : (
+                  <p className="text-white">Nenhuma postagem encontrada.</p>
+                )}
+              </section>
 
 
-        <section className="w-full p-4 flex items-center justify-center min-h-screen">
-  <div className="w-full sm:w-[1200px] flex flex-col items-center justify-center">
-    {loading ? (
-      <p className="text-center text-white">Carregando...</p>
-    ) : (
-      <>
-        <div className="w-full sm:w-[1200px] flex justify-between mt-2">
-          <div className="flex-3">
-            <h1 className="uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]">NOSSOS VIDEOS</h1>
-          </div>
-          <div className="flex-2">
-            <p className="text-sm text-white mb-2">
-              <strong></strong>
-            </p>
-          </div>
-        </div>
-
-        <div className="w-full sm:w-[1200px] flex items-center">
-          <div className="h-[3px] bg-green-600 w-1/4"></div>
-          <div className="h-px bg-green-300 w-3/4"></div>
-        </div>
-
-        {posts.length > 0 ? (
-          <>
-            <div className="flex sm:flex-row flex-col">
-              {posts
-                .filter((post) => post.category && post.category.includes("VIDEOS")) // Filtragem por categoria
-                .slice(0, 2) // Limita a exibição a duas postagens
-                .map((post) => (
-                  <div
-                    key={post.id}
-                    className="flex flex-col w-full p-4 text-white rounded bg-black"
-                    data-aos="fade-up"
-                  >
-                    <Link href={post.videoUrl ? post.videoUrl : "/"} passHref>
-                      <div className="flex flex-col w-full p-4 text-white rounded bg-black">
-                        <div className="relative">
+            {/* Versão para Mobile */}
+            <div className="block md:hidden">
+              {posts.length > 0 ? (
+                <>
+                  {posts
+                    .filter(post => post.category && !post.category.includes("VIDEOS")) // Verifica se "category" existe e se não é "VIDEOS"
+                    .slice(0, 2) // Limita a 2 postagens
+                    .map((post) => (
+                      <div
+                        key={post.id}
+                        className="flex flex-col w-full post mb-4 p-4 text-white rounded bg-black border-green-500 border"
+                        data-aos="fade-up"
+                      >
+                        <Link className="flex flex-col" href={`/posts/${post.id}`}>
                           {post.imageUrl && (
                             <img
                               src={post.imageUrl}
                               alt={post.title}
-                              className="w-3/4 h-auto sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
+                              className="w-full h-[150px] object-cover rounded mb-4"
                             />
                           )}
-                          <span className="absolute bottom-[50px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
-                            {post.category}
-                          </span>
-                        </div>
-                        <div className="ml-3">
-                          <h2 className="text-xl font-bold">{post.title}</h2>
-                        </div>
+                          <h2 className="text-lg font-semibold text-green-500 mb-2">
+                            {post.title}
+                          </h2>
+                          {post.content && (
+                            <p className="text-sm text-gray-300 line-clamp-2">
+                              {post.content}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between mt-4">
+                            <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                              <span className="w-full sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-green-600 ">
+                                {post.category}
+                              </span>
+                            </p>
+                          </div>
+                        </Link>
                       </div>
-                    </Link>
-
-                  </div>
-                ))}
+                    ))}
+                </>
+              ) : (
+                <p className="text-center text-white">Nenhuma postagem encontrada.</p>
+              )}
             </div>
-          </>
+
+    <section className="block md:hidden p-4 flex flex-col items-center justify-center">
+      {currentPosts.length > 0 ? (
+        <>
+          {/* 2) Paginação, fora do map */}
+          <div className="flex justify-center items-center space-x-2 mt-6 text-white">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 border rounded ${
+                currentPage === 1
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-green-700'
+              }`}
+            >
+              Anterior
+            </button>
+
+            {getVisiblePages().map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 border rounded ${
+                  page === currentPage ? 'bg-green-700' : 'hover:bg-green-700'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 border rounded ${
+                currentPage === totalPages
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-green-700'
+              }`}
+            >
+              Próxima
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="text-white">Nenhuma postagem encontrada.</p>
+      )}
+    </section>
+          
+        </>
+      )}
+    </section>
+
+
+        <section className="w-full p-4 flex items-center justify-center min-h-screen">
+      <div className="w-full sm:w-[1200px] flex flex-col items-center justify-center">
+        {loading ? (
+          <p className="text-center text-white">Carregando...</p>
         ) : (
-          <p className="text-center text-white">Nenhum post encontrado.</p>
+          <>
+            <div className="w-full sm:w-[1200px] flex justify-between mt-2">
+              <div className="flex-3">
+                <h1 className="uppercase text-green-600 m-5 font-bold text-[1.2rem] sm:text-[2.5rem]">NOSSOS VIDEOS</h1>
+              </div>
+              <div className="flex-2">
+                <p className="text-sm text-white mb-2">
+                  <strong></strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full sm:w-[1200px] flex items-center">
+              <div className="h-[3px] bg-green-600 w-1/4"></div>
+              <div className="h-px bg-green-300 w-3/4"></div>
+            </div>
+
+            {posts.length > 0 ? (
+              <>
+                <div className="flex sm:flex-row flex-col">
+                  {posts
+                    .filter((post) => post.category && post.category.includes("VIDEOS")) // Filtragem por categoria
+                    .slice(0, 2) // Limita a exibição a duas postagens
+                    .map((post) => (
+                      <div
+                        key={post.id}
+                        className="flex flex-col w-full p-4 text-white rounded bg-black"
+                        data-aos="fade-up"
+                      >
+                        <Link href={post.videoUrl ? post.videoUrl : "/"} passHref>
+                          <div className="flex flex-col w-full p-4 text-white rounded bg-black">
+                            <div className="relative">
+                              {post.imageUrl && (
+                                <img
+                                  src={post.imageUrl}
+                                  alt={post.title}
+                                  className="w-3/4 h-auto sm:w-[450px] sm:h-[250px] rounded m-5 object-cover"
+                                />
+                              )}
+                              <span className="absolute bottom-[50px] left-[40px] p-2 text-sm bg-black text-white border-b-2 border-green-600">
+                                {post.category}
+                              </span>
+                            </div>
+                            <div className="ml-3">
+                              <h2 className="text-xl font-bold">{post.title}</h2>
+                            </div>
+                          </div>
+                        </Link>
+
+                      </div>
+                    ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-center text-white">Nenhum post encontrado.</p>
+            )}
+          </>
         )}
-      </>
-    )}
-  </div>
-</section>
+      </div>
+    </section>
 
 
 
