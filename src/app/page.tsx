@@ -139,6 +139,9 @@ export default function Home() {
   //if (error) return <p className="text-center text-red-500">{error}</p>;
 
 
+  
+
+
   return (
     <main className="w-full min-h-screen bg-black">
       <title>LOUDinhos</title>
@@ -284,10 +287,11 @@ export default function Home() {
                             </h2>
 
                             {post.content && (
-                              <p className="hidden text-sm text-white sm:line-clamp-3 sm:overflow-hidden">
-                                {post.content}
-                              </p>
-                            )}
+                            <div className="text-sm text-gray-300 line-clamp-2">
+                              {post.content.replace(/<[^>]+>/g, '')}
+                            </div>
+                          )}
+
 
                             <div className="flex gap-2 items-center">
                               <p className="flex gap-2 items-center text-sm">
@@ -380,10 +384,12 @@ export default function Home() {
                             {post.title}
                           </h2>
                           {post.content && (
-                            <p className="text-sm text-gray-300 line-clamp-2">
-                              {post.content}
-                            </p>
+                            <div className="text-sm text-gray-300 line-clamp-2">
+                              {post.content.replace(/<[^>]+>/g, '')}
+                            </div>
                           )}
+
+
                           <div className="flex items-center justify-between mt-4">
                             <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
                               <span className="w-full sm:absolute bottom-0 left-0 p-2 text-sm bg-black text-green-600 ">
