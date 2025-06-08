@@ -1,4 +1,3 @@
-'use client';
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -11,6 +10,74 @@ import Script from "next/script";
 const geist = Geist({ subsets: ["latin"] });
 const geistMono = Geist_Mono({ subsets: ["latin"] });
 
+export const metadata: Metadata = {
+  title: "Loudinhos",
+  description: "Informações sobre o competitivo em geral da LOUD",
+    verification: {
+      google:"eOAhK1617OsR1sthBlOcBFOCiUzQV8PkqMvRPJsG1UA",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,         // sem limite de snippet
+      "max-image-preview": 'large', // permite previews grandes
+      "max-video-preview": -1,     // sem limite de preview de vídeo
+    },
+  },
+  keywords: [
+    "LOUD",
+    "LOUD Esports",
+    "Loudinhos",
+    "Notícias LOUD",
+    "Lineups LOUD",
+    "Conquistas LOUD",  
+    "Eventos LOUD",
+    "Esports Brasil",
+    "Esports LOUD",
+    "Competitivo LOUD",
+    "LOUD Lol",
+    "LOUD Valorant",
+    "LOUD Free Fire",
+    "LOUD CS:GO",
+    "LOUD R6",
+    "LOUD Brawl Stars",  
+    "LOUD League of Legends",
+    "LOUD noticias"
+  ],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/shield-favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "24x24" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+    ],
+  },
+  metadataBase: new URL("https://loudinhos.com.br"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Loudinhos - Informações sobre o competitivo em geral da LOUD",
+    description: "Notícias, lineups, conquistas e eventos da torcida LOUD em um só lugar.",
+    url: "https://loudinhos.com.br",
+    images: [
+      {
+        url: "https://loudinhos.com.br/logo.png",
+        width: 800,
+        height: 600,
+        alt: "Logo Loudinhos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,22 +86,6 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <head>
-        <title>Loudinhos</title>
-        <meta name="robots" content="index, follow" />
-        <meta name="description" content="Informações sobre o competitivo em geral da LOUD" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/shield-favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="24x24" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="canonical" href="https://loudinhos.com.br" />
-        <meta property="og:title" content="Loudinhos - Informações sobre o competitivo em geral da LOUD" />
-        <meta property="og:description" content="Notícias, lineups, conquistas e eventos da torcida LOUD em um só lugar." />
-        <meta property="og:image" content="https://loudinhos.com.br/logo.png" />
-        <meta property="og:url" content="https://loudinhos.com.br" />
-        <meta name="twitter:card" content="summary_large_image" />
-
-        {/* Google Analytics */}
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
@@ -48,7 +99,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`antialiased`}>
+      <body className="antialiased">
         <ToastContainer />
         {children}
         <Analytics />
