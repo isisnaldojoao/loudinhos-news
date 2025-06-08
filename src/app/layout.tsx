@@ -48,7 +48,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${geist.className} ${geistMono.className} antialiased`}>
+      <body className={`antialiased`}>
         <ToastContainer />
         {children}
         <Analytics />
