@@ -11,8 +11,8 @@ const geist = Geist({ subsets: ["latin"] });
 const geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Loudinhos",
-  description: "Informações sobre o competitivo em geral da LOUD",
+  title: "LOUDinhos - Sua fonte de notícias sobre a LOUDgg",
+  description: "Informações sobre o competitivo em geral da LOUD. Cobertura completa de notícias, lineups, conquistas e eventos da torcida LOUD em um só lugar.",
     verification: {
       google:"eOAhK1617OsR1sthBlOcBFOCiUzQV8PkqMvRPJsG1UA",
   },
